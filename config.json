@@ -93,6 +93,17 @@
       "tags": ["automation", "workflows", "ai", "webhooks"]
     },
     {
+      "id": "paperclip",
+      "name": "Paperclip AI Company Control Plane",
+      "category": "ai-automation",
+      "url": "https://paperclip.ertechlab.com",
+      "internal_url": "http://192.168.0.80:30791",
+      "health_url": "http://192.168.0.80:30791/api/state",
+      "icon": "bot",
+      "description": "Zero-Human AI Company Swarm & Ollama Local Autonomous Agent Control Plane",
+      "tags": ["paperclip", "ollama", "ai", "agents", "swarm"]
+    },
+    {
       "id": "printforge",
       "name": "PrintForge 3D Platform",
       "category": "web-tools",
