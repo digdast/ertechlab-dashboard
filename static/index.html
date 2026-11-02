@@ -1253,6 +1253,80 @@
       </div>
     </div>
 
+    <!-- Nginx Proxy Manager (NPM) Ingress & Host Health Telemetry -->
+    <div class="glance-strip-card pihole-card" id="npm-widget">
+      <div class="glance-header">
+        <div class="glance-title" style="display:flex; align-items:center; gap:0.6rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#22c55e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          <span style="font-weight:700; letter-spacing:-0.2px;">Nginx Proxy Manager & Edge Ingress Telemetry</span>
+          <span class="badge" style="background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid rgba(34,197,94,0.3); font-size:0.7rem; padding:0.15rem 0.5rem; border-radius:999px;" id="npm-badge-status">15 Hosts &bull; Cloudflare Tunnel</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <div class="telemetry-pill" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;">
+            <span class="pulse-dot" style="background:#10b981; box-shadow:0 0 8px #10b981;"></span>
+            <span id="npm-status-text">15 of 15 Upstreams Reachable</span>
+          </div>
+          <a href="https://npm.ertechlab.com" target="_blank" class="btn-action" style="font-size:0.75rem; padding:0.25rem 0.65rem; text-decoration:none; display:flex; align-items:center; gap:0.35rem;" title="Open NPM Admin Console">
+            <span>NPM Admin</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="pihole-metrics-grid">
+        <div class="pihole-metric-item">
+          <div class="pihole-metric-label">Active Proxy Hosts</div>
+          <div class="pihole-metric-val" id="npm-total-hosts">15</div>
+          <div class="pihole-metric-sub" id="npm-reachable-sub">15 Reachable &bull; 0 Errors</div>
+        </div>
+        <div class="pihole-metric-item">
+          <div class="pihole-metric-label">SSL Encryption Coverage</div>
+          <div class="pihole-metric-val" style="color:var(--accent-cyan);" id="npm-ssl-ratio">100%</div>
+          <div class="pihole-metric-sub">*.ertechlab.com Wildcard</div>
+        </div>
+        <div class="pihole-metric-item">
+          <div class="pihole-metric-label">Edge WAN Ingress</div>
+          <div class="pihole-metric-val" style="color:var(--accent-amber);" id="npm-edge-ingress">Argo Tunnel</div>
+          <div class="pihole-metric-sub">Zero Trust Edge Routed</div>
+        </div>
+        <div class="pihole-metric-item">
+          <div class="pihole-metric-label">Average Route Latency</div>
+          <div class="pihole-metric-val" style="color:var(--accent-purple);" id="npm-avg-latency">-- ms</div>
+          <div class="pihole-metric-sub">Edge to Cluster Target</div>
+        </div>
+      </div>
+
+      <!-- Graphs Row: Host Latency & Reachability Distribution + Proxy Hosts List -->
+      <div class="pihole-graphs-row">
+        <!-- Live Host Latency & Health SVG Chart -->
+        <div class="pihole-graph-container">
+          <div class="pihole-graph-header">
+            <span class="pihole-graph-title">Proxy Hosts Response Latency & Reachability</span>
+            <div class="pihole-legend">
+              <span class="legend-item"><span class="legend-color" style="background:#22c55e;"></span>Reachable (&lt;50ms)</span>
+              <span class="legend-item"><span class="legend-color" style="background:#f59e0b;"></span>Hypervisor (50-150ms)</span>
+              <span class="legend-item"><span class="legend-color" style="background:#ef4444;"></span>Unreachable / Error</span>
+            </div>
+          </div>
+          <div class="pihole-svg-wrap" id="npm-chart-wrap">
+            <!-- Dynamic SVG Chart -->
+          </div>
+        </div>
+
+        <!-- Proxy Hosts List Breakdown -->
+        <div class="pihole-upstreams-container">
+          <div class="pihole-graph-header">
+            <span class="pihole-graph-title">Proxy Hosts Routing Status</span>
+            <span style="font-size:0.7rem; color:var(--text-muted);" id="npm-hosts-count">15 Hosts</span>
+          </div>
+          <div class="pihole-upstreams-list" id="npm-hosts-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Homer Tag Filter Chips -->
     <div class="filter-chips" id="filter-chips-container">
       <div class="tag-chip active" data-category="all">#All Services</div>
@@ -1565,12 +1639,13 @@
 
     async function updateTelemetry(force = false) {
       try {
-        const [resStatus, resNodes, resCluster, resPihole, resPve] = await Promise.all([
+        const [resStatus, resNodes, resCluster, resPihole, resPve, resNpm] = await Promise.all([
           fetch(`/api/status${force ? '?refresh=true' : ''}`),
           fetch('/api/nodes'),
           fetch('/api/cluster'),
           fetch('/api/pihole'),
-          fetch('/api/pve')
+          fetch('/api/pve'),
+          fetch('/api/npm')
         ]);
 
         const statusData = await resStatus.json();
@@ -1578,6 +1653,7 @@
         const clusterData = await resCluster.json();
         const piholeData = await resPihole.json();
         const pveData = await resPve.json();
+        const npmData = await resNpm.json();
 
         // 1. Update Services Status & Latency
         let onlineCount = 0;
@@ -1646,6 +1722,11 @@
         // 5. Update Proxmox VE Cluster Telemetry & Graphs
         if (pveData) {
           renderPveTelemetry(pveData);
+        }
+
+        // 6. Update Nginx Proxy Manager (NPM) Ingress & Host Telemetry
+        if (npmData) {
+          renderNpmTelemetry(npmData);
         }
 
       } catch (err) {
@@ -1985,6 +2066,157 @@
           <div class="upstream-progress-bg" style="display:flex; gap:2px; height:4px; background:rgba(255,255,255,0.06);">
             <div style="width:${Math.min(n.cpu_pct, 100)}%; background:${color}; border-radius:2px; height:100%; transition:width 0.4s ease;" title="CPU: ${n.cpu_pct}%"></div>
             <div style="width:${Math.min(n.mem_pct, 100)}%; background:#34d399; opacity:0.6; border-radius:2px; height:100%; transition:width 0.4s ease;" title="RAM: ${n.mem_pct}%"></div>
+          </div>
+        `;
+        container.appendChild(itemEl);
+      });
+    }
+
+    function renderNpmTelemetry(data) {
+      if (!data || !data.online || !data.summary) {
+        const statusEl = document.getElementById('npm-status-text');
+        if (statusEl) statusEl.textContent = 'Connecting...';
+        return;
+      }
+
+      const s = data.summary;
+      const hosts = data.hosts || [];
+
+      const statusEl = document.getElementById('npm-status-text');
+      if (statusEl) {
+        if (s.errors_count === 0) {
+          statusEl.textContent = `${s.reachable_hosts} of ${s.total_hosts} Upstreams Reachable`;
+        } else {
+          statusEl.textContent = `${s.errors_count} Hosts Error \u2022 ${s.reachable_hosts}/${s.total_hosts} Reachable`;
+        }
+      }
+
+      const badgeStatus = document.getElementById('npm-badge-status');
+      if (badgeStatus) badgeStatus.textContent = `${s.total_hosts} Hosts \u2022 Cloudflare Tunnel`;
+
+      // 1. Total Hosts
+      const totalEl = document.getElementById('npm-total-hosts');
+      if (totalEl) totalEl.textContent = s.total_hosts || '0';
+
+      const reachSub = document.getElementById('npm-reachable-sub');
+      if (reachSub) reachSub.textContent = `${s.reachable_hosts} Reachable \u2022 ${s.errors_count} Errors`;
+
+      // 2. SSL
+      const sslEl = document.getElementById('npm-ssl-ratio');
+      if (sslEl) {
+        const pct = s.total_hosts > 0 ? Math.round((s.ssl_secured / s.total_hosts) * 100) : 100;
+        sslEl.textContent = `${pct}%`;
+      }
+
+      // 3. Avg Latency
+      const latEl = document.getElementById('npm-avg-latency');
+      if (latEl) latEl.textContent = `${s.avg_latency_ms || 15} ms`;
+
+      // Render Latency & Reachability Chart
+      renderNpmChart(hosts);
+
+      // Render Hosts List Breakdown
+      renderNpmHosts(hosts);
+    }
+
+    function renderNpmChart(hosts) {
+      const container = document.getElementById('npm-chart-wrap');
+      if (!container || !hosts || hosts.length === 0) return;
+
+      const w = container.clientWidth || 560;
+      const h = 130;
+      const padBottom = 26;
+      const padTop = 10;
+      const padLeft = 36;
+      const padRight = 10;
+      const chartW = w - padLeft - padRight;
+      const chartH = h - padTop - padBottom;
+
+      const maxLat = Math.max(50, Math.ceil(Math.max(...hosts.map(h => h.latency_ms || 0), 10) / 25) * 25);
+      const n = hosts.length;
+      const barWidth = Math.max(8, Math.min(22, (chartW / n) - 6));
+      const step = chartW / n;
+
+      let barsHtml = '';
+      let trendPoints = [];
+
+      hosts.forEach((host, i) => {
+        const x = padLeft + i * step + (step - barWidth) / 2;
+        const lat = host.latency_ms || 0;
+        const barH = host.reachable ? Math.max(4, (lat / maxLat) * chartH) : chartH;
+        const y = padTop + chartH - barH;
+
+        let barColor = '#22c55e'; // green (<50ms)
+        if (!host.reachable) {
+          barColor = '#ef4444'; // red (error)
+        } else if (lat > 50) {
+          barColor = '#f59e0b'; // amber (hypervisor)
+        }
+
+        const shortName = host.domain.split('.')[0];
+        barsHtml += `
+          <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${barH.toFixed(1)}" rx="3" fill="${barColor}" opacity="0.85">
+            <title>${host.domain}: ${host.reachable ? host.status_msg + ' (' + lat + 'ms)' : 'Unreachable (' + host.status_msg + ')'}</title>
+          </rect>
+          <text x="${(x + barWidth / 2).toFixed(1)}" y="${h - 6}" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-family="'JetBrains Mono', monospace">${shortName.slice(0, 4)}</text>
+        `;
+
+        const centerX = x + barWidth / 2;
+        trendPoints.push(`${centerX.toFixed(1)},${y.toFixed(1)}`);
+      });
+
+      const halfLat = Math.round(maxLat / 2);
+
+      container.innerHTML = `
+        <svg width="100%" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="overflow:visible;">
+          <!-- Grid lines & Y labels -->
+          <text x="${padLeft - 6}" y="${padTop + 4}" text-anchor="end" fill="var(--text-muted)" font-size="9" font-family="'JetBrains Mono', monospace">${maxLat}ms</text>
+          <line x1="${padLeft}" y1="${padTop}" x2="${w - padRight}" y2="${padTop}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3"/>
+
+          <text x="${padLeft - 6}" y="${padTop + chartH / 2 + 3}" text-anchor="end" fill="var(--text-muted)" font-size="9" font-family="'JetBrains Mono', monospace">${halfLat}ms</text>
+          <line x1="${padLeft}" y1="${padTop + chartH / 2}" x2="${w - padRight}" y2="${padTop + chartH / 2}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3"/>
+
+          <text x="${padLeft - 6}" y="${padTop + chartH}" text-anchor="end" fill="var(--text-muted)" font-size="9" font-family="'JetBrains Mono', monospace">0ms</text>
+          <line x1="${padLeft}" y1="${padTop + chartH}" x2="${w - padRight}" y2="${padTop + chartH}" stroke="rgba(255,255,255,0.12)"/>
+
+          <!-- Bars -->
+          ${barsHtml}
+
+          <!-- Trend line -->
+          <path d="M ${trendPoints.join(' L ')}" fill="none" stroke="#38bdf8" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 2" opacity="0.6"/>
+        </svg>
+      `;
+    }
+
+    function renderNpmHosts(hosts) {
+      const container = document.getElementById('npm-hosts-list');
+      if (!container) return;
+
+      const countEl = document.getElementById('npm-hosts-count');
+      if (countEl) countEl.textContent = `${hosts.length} Hosts`;
+
+      container.innerHTML = '';
+      hosts.forEach(h => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'upstream-item';
+
+        const statusColor = h.reachable ? (h.latency_ms > 50 ? '#f59e0b' : '#22c55e') : '#ef4444';
+        const statusText = h.reachable ? `${h.status_msg} \u2022 ${h.latency_ms}ms` : 'Error / Offline';
+
+        itemEl.innerHTML = `
+          <div class="upstream-info" style="align-items:center;">
+            <div style="display:flex; align-items:center; gap:0.4rem; overflow:hidden;">
+              <span class="legend-color" style="background:${statusColor}; width:8px; height:8px; border-radius:50%; flex-shrink:0;"></span>
+              <a href="https://${h.domain}" target="_blank" class="upstream-name" style="font-weight:700; text-decoration:none; color:inherit;" title="Open https://${h.domain}">${h.domain}</a>
+              <span style="font-size:0.65rem; color:var(--text-muted); font-family:'JetBrains Mono', monospace;">&rarr; ${h.target}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.7rem; font-family:'JetBrains Mono', monospace; flex-shrink:0;">
+              <span style="color:${statusColor}; font-weight:700;">${statusText}</span>
+              <span class="badge" style="background:rgba(56,189,248,0.1); color:#38bdf8; font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:4px;">SSL</span>
+            </div>
+          </div>
+          <div class="upstream-progress-bg" style="height:3px;">
+            <div style="width:${h.reachable ? Math.min(Math.max((h.latency_ms / 100) * 100, 5), 100) : 100}%; background:${statusColor}; height:100%; border-radius:2px; transition:width 0.4s ease;"></div>
           </div>
         `;
         container.appendChild(itemEl);

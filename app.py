@@ -32,6 +32,7 @@ CACHE_NODES = {"timestamp": 0, "data": []}
 CACHE_CLUSTER = {"timestamp": 0, "data": {}}
 CACHE_PIHOLE = {"timestamp": 0, "data": {}}
 CACHE_PVE = {"timestamp": 0, "data": {}}
+CACHE_NPM = {"timestamp": 0, "data": {}}
 
 PVE_TOKEN_HEADER = "PVEAPIToken=root@pam!dashboard=11ad9290-cbf4-4944-aa5f-523cb6d3773b"
 PVE_HOSTS = ["192.168.0.31", "192.168.0.32", "192.168.0.33", "192.168.0.34"]
@@ -486,6 +487,109 @@ def get_pve_telemetry():
     CACHE_PVE["data"] = pve_data
     return pve_data
 
+def get_npm_telemetry():
+    now = time.time()
+    if now - CACHE_NPM["timestamp"] < 10 and CACHE_NPM["data"]:
+        return CACHE_NPM["data"]
+
+    npm_data = {
+        "online": False,
+        "summary": {
+            "total_hosts": 0,
+            "reachable_hosts": 0,
+            "ssl_secured": 0,
+            "avg_latency_ms": 0,
+            "errors_count": 0,
+            "tunnel_active": True
+        },
+        "hosts": []
+    }
+
+    try:
+        login_data = json.dumps({"identity": "efrain.acetech@gmail.com", "secret": "Chloe_12152009"}).encode()
+        req_auth = urllib.request.Request("http://192.168.0.80:81/api/tokens", data=login_data, headers={"Content-Type": "application/json"}, method="POST")
+        with urllib.request.urlopen(req_auth, timeout=2.5) as r_tok:
+            token = json.loads(r_tok.read().decode()).get("token")
+
+        req_hosts = urllib.request.Request("http://192.168.0.80:81/api/nginx/proxy-hosts", headers={"Authorization": f"Bearer {token}"})
+        with urllib.request.urlopen(req_hosts, timeout=3.0) as r_hosts:
+            hosts = json.loads(r_hosts.read().decode())
+
+        def probe(h):
+            scheme = h.get("forward_scheme", "http")
+            f_host = h.get("forward_host", "127.0.0.1")
+            f_port = h.get("forward_port", 80)
+            target_url = f"{scheme}://{f_host}:{f_port}"
+            domain = h.get("domain_names", ["unknown"])[0]
+
+            start = time.time()
+            code = 0
+            latency = 0
+            reachable = False
+            msg = ""
+
+            try:
+                req_p = urllib.request.Request(target_url, headers={"User-Agent": "ERTECHLab-Dashboard/3.0"})
+                ctx = SSL_CTX if scheme == "https" else None
+                with urllib.request.urlopen(req_p, context=ctx, timeout=2.0) as resp:
+                    code = resp.status
+                    latency = int((time.time() - start) * 1000)
+                    reachable = True
+                    msg = f"HTTP {code}"
+            except urllib.error.HTTPError as e:
+                code = e.code
+                latency = int((time.time() - start) * 1000)
+                reachable = code in [200, 301, 302, 307, 308, 401, 403, 404, 405]
+                msg = f"HTTP {code}"
+            except Exception as e:
+                latency = int((time.time() - start) * 1000)
+                reachable = False
+                msg = str(e)
+
+            return {
+                "id": h.get("id"),
+                "domain": domain,
+                "target": f"{f_host}:{f_port}",
+                "scheme": scheme,
+                "reachable": reachable,
+                "code": code,
+                "latency_ms": latency if reachable else 0,
+                "ssl_secured": bool(h.get("certificate_id")),
+                "websockets": bool(h.get("allow_websocket_upgrade")),
+                "enabled": bool(h.get("enabled")),
+                "status_msg": msg
+            }
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+            probed_hosts = list(executor.map(probe, hosts))
+
+        probed_hosts.sort(key=lambda x: x["domain"])
+
+        total = len(probed_hosts)
+        reachable_cnt = sum(1 for h in probed_hosts if h["reachable"])
+        ssl_cnt = sum(1 for h in probed_hosts if h["ssl_secured"])
+        errors_cnt = sum(1 for h in probed_hosts if not h["reachable"] or h["code"] >= 500)
+        valid_lats = [h["latency_ms"] for h in probed_hosts if h["reachable"] and h["latency_ms"] > 0]
+        avg_lat = int(sum(valid_lats) / len(valid_lats)) if valid_lats else 0
+
+        npm_data["online"] = True
+        npm_data["summary"] = {
+            "total_hosts": total,
+            "reachable_hosts": reachable_cnt,
+            "ssl_secured": ssl_cnt,
+            "avg_latency_ms": avg_lat,
+            "errors_count": errors_cnt,
+            "tunnel_active": True
+        }
+        npm_data["hosts"] = probed_hosts
+
+    except Exception as e:
+        print(f"Error fetching NPM telemetry: {e}")
+
+    CACHE_NPM["timestamp"] = now
+    CACHE_NPM["data"] = npm_data
+    return npm_data
+
 class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=STATIC_DIR, **kwargs)
@@ -518,6 +622,11 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
 
         if self.path.startswith("/api/pve"):
             data = get_pve_telemetry()
+            self.send_json_response(data)
+            return
+
+        if self.path.startswith("/api/npm"):
+            data = get_npm_telemetry()
             self.send_json_response(data)
             return
 
