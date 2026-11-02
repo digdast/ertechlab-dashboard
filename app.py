@@ -31,6 +31,10 @@ CACHE_STATUS = {"timestamp": 0, "data": []}
 CACHE_NODES = {"timestamp": 0, "data": []}
 CACHE_CLUSTER = {"timestamp": 0, "data": {}}
 CACHE_PIHOLE = {"timestamp": 0, "data": {}}
+CACHE_PVE = {"timestamp": 0, "data": {}}
+
+PVE_TOKEN_HEADER = "PVEAPIToken=root@pam!dashboard=11ad9290-cbf4-4944-aa5f-523cb6d3773b"
+PVE_HOSTS = ["192.168.0.31", "192.168.0.32", "192.168.0.33", "192.168.0.34"]
 
 FALLBACK_NODES = [
     {"name": "k3s-cp-01", "ip": "192.168.0.80", "role": "control-plane,etcd"},
@@ -317,6 +321,171 @@ def get_pihole_telemetry():
     CACHE_PIHOLE["data"] = pihole_data
     return pihole_data
 
+def get_pve_telemetry():
+    now = time.time()
+    if now - CACHE_PVE["timestamp"] < 10 and CACHE_PVE["data"]:
+        return CACHE_PVE["data"]
+
+    pve_data = {
+        "online": False,
+        "cluster": {},
+        "nodes": [],
+        "history": [],
+        "vms_summary": {"total": 0, "running": 0}
+    }
+
+    headers = {
+        "Authorization": PVE_TOKEN_HEADER,
+        "User-Agent": "ERTECHLab-Dashboard/3.0"
+    }
+
+    active_host = None
+    for host in PVE_HOSTS:
+        try:
+            req_test = urllib.request.Request(f"https://{host}:8006/api2/json/version", headers=headers)
+            with urllib.request.urlopen(req_test, context=SSL_CTX, timeout=1.5) as r:
+                if r.status == 200:
+                    active_host = host
+                    break
+        except Exception:
+            continue
+
+    if not active_host:
+        active_host = "192.168.0.31"
+
+    try:
+        req_nodes = urllib.request.Request(f"https://{active_host}:8006/api2/json/cluster/resources?type=node", headers=headers)
+        with urllib.request.urlopen(req_nodes, context=SSL_CTX, timeout=3.0) as r:
+            nodes_raw = json.loads(r.read().decode()).get("data", [])
+
+        req_vms = urllib.request.Request(f"https://{active_host}:8006/api2/json/cluster/resources?type=vm", headers=headers)
+        with urllib.request.urlopen(req_vms, context=SSL_CTX, timeout=3.0) as r:
+            vms_raw = json.loads(r.read().decode()).get("data", [])
+
+        running_vms = [v for v in vms_raw if v.get("status") == "running"]
+        pve_data["vms_summary"] = {
+            "total": len(vms_raw),
+            "running": len(running_vms)
+        }
+
+        vms_per_node = {}
+        for v in vms_raw:
+            n = v.get("node")
+            if n:
+                vms_per_node[n] = vms_per_node.get(n, 0) + (1 if v.get("status") == "running" else 0)
+
+        total_cpu_sum = 0
+        total_cores = 0
+        total_mem_used = 0
+        total_mem_max = 0
+        total_disk_used = 0
+        total_disk_max = 0
+        nodes_list = []
+
+        node_ips = {
+            "pve-01": "192.168.0.31",
+            "pve-02": "192.168.0.32",
+            "pve-03": "192.168.0.33",
+            "pve-04": "192.168.0.34"
+        }
+
+        for n in sorted(nodes_raw, key=lambda x: x.get("node", "")):
+            node_name = n.get("node")
+            status = n.get("status", "unknown")
+            cpu_val = float(n.get("cpu", 0))
+            max_cpu = int(n.get("maxcpu", 8) or 8)
+            mem_used = int(n.get("mem", 0))
+            mem_max = int(n.get("maxmem", 1) or 1)
+            disk_used = int(n.get("disk", 0))
+            disk_max = int(n.get("maxdisk", 1) or 1)
+            uptime = int(n.get("uptime", 0))
+
+            total_cpu_sum += cpu_val * max_cpu
+            total_cores += max_cpu
+            total_mem_used += mem_used
+            total_mem_max += mem_max
+            total_disk_used += disk_used
+            total_disk_max += disk_max
+
+            nodes_list.append({
+                "node": node_name,
+                "ip": node_ips.get(node_name, ""),
+                "status": status,
+                "cpu_pct": round(cpu_val * 100, 1),
+                "cores": max_cpu,
+                "mem_used_gb": round(mem_used / (1024**3), 2),
+                "mem_max_gb": round(mem_max / (1024**3), 2),
+                "mem_pct": round((mem_used / mem_max) * 100, 1),
+                "disk_used_gb": round(disk_used / (1024**3), 1),
+                "disk_max_gb": round(disk_max / (1024**3), 1),
+                "disk_pct": round((disk_used / disk_max) * 100, 1),
+                "uptime_days": round(uptime / 86400, 1),
+                "vms_running": vms_per_node.get(node_name, 0)
+            })
+
+        avg_cpu_pct = round((total_cpu_sum / max(total_cores, 1)) * 100, 1)
+        mem_pct = round((total_mem_used / max(total_mem_max, 1)) * 100, 1)
+        disk_pct = round((total_disk_used / max(total_disk_max, 1)) * 100, 1)
+
+        pve_data["cluster"] = {
+            "name": "pve-clust-01",
+            "active_host": active_host,
+            "nodes_online": sum(1 for n in nodes_list if n["status"] == "online"),
+            "nodes_total": len(nodes_list),
+            "cpu_pct": avg_cpu_pct,
+            "cores": total_cores,
+            "mem_used_gb": round(total_mem_used / (1024**3), 1),
+            "mem_max_gb": round(total_mem_max / (1024**3), 1),
+            "mem_pct": mem_pct,
+            "disk_used_gb": round(total_disk_used / (1024**3), 1),
+            "disk_max_gb": round(total_disk_max / (1024**3), 1),
+            "disk_pct": disk_pct
+        }
+        pve_data["nodes"] = nodes_list
+        pve_data["online"] = True
+
+        rrd_history = {}
+        for n in nodes_list:
+            node_name = n["node"]
+            try:
+                url_rrd = f"https://{active_host}:8006/api2/json/nodes/{node_name}/rrddata?timeframe=hour"
+                req_rrd = urllib.request.Request(url_rrd, headers=headers)
+                with urllib.request.urlopen(req_rrd, context=SSL_CTX, timeout=2.0) as r:
+                    rrd_raw = json.loads(r.read().decode()).get("data", [])
+                    rrd_history[node_name] = [pt for pt in rrd_raw if pt.get("time") and pt.get("cpu") is not None]
+            except Exception:
+                rrd_history[node_name] = []
+
+        all_times = sorted(list({pt["time"] for pts in rrd_history.values() for pt in pts}))
+        sample_times = all_times[-30:] if len(all_times) > 30 else all_times
+
+        merged_history = []
+        for t in sample_times:
+            point = {"time": t}
+            total_c = 0
+            cnt = 0
+            for node_name in ["pve-01", "pve-02", "pve-03", "pve-04"]:
+                node_pts = rrd_history.get(node_name, [])
+                pt_match = next((p for p in node_pts if p["time"] == t), None)
+                if pt_match and pt_match.get("cpu") is not None:
+                    c_pct = round(float(pt_match["cpu"]) * 100, 1)
+                    point[node_name] = c_pct
+                    total_c += c_pct
+                    cnt += 1
+                else:
+                    point[node_name] = 0.0
+            point["total_cpu"] = round(total_c / max(cnt, 1), 1)
+            merged_history.append(point)
+
+        pve_data["history"] = merged_history
+
+    except Exception as e:
+        print(f"Error fetching PVE telemetry: {e}")
+
+    CACHE_PVE["timestamp"] = now
+    CACHE_PVE["data"] = pve_data
+    return pve_data
+
 class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=STATIC_DIR, **kwargs)
@@ -344,6 +513,11 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
 
         if self.path.startswith("/api/pihole"):
             data = get_pihole_telemetry()
+            self.send_json_response(data)
+            return
+
+        if self.path.startswith("/api/pve"):
+            data = get_pve_telemetry()
             self.send_json_response(data)
             return
 

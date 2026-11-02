@@ -1178,6 +1178,81 @@
       </div>
     </div>
 
+    <!-- Proxmox VE 4-Node Cluster Telemetry & Graphs -->
+    <div class="glance-strip-card pihole-card" id="pve-widget">
+      <div class="glance-header">
+        <div class="glance-title" style="display:flex; align-items:center; gap:0.6rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><line x1="6" x2="6.01" y1="8" y2="8"/><line x1="6" x2="6.01" y1="16" y2="16"/></svg>
+          <span style="font-weight:700; letter-spacing:-0.2px;">Proxmox VE Cluster Telemetry</span>
+          <span class="badge" style="background:rgba(249,115,22,0.15); color:#f97316; border:1px solid rgba(249,115,22,0.3); font-size:0.7rem; padding:0.15rem 0.5rem; border-radius:999px;" id="pve-badge-cluster">pve-clust-01 &bull; 4 Nodes</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <div class="telemetry-pill" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;">
+            <span class="pulse-dot" style="background:#10b981; box-shadow:0 0 8px #10b981;"></span>
+            <span id="pve-status-text">Quorate &bull; 4 of 4 Online</span>
+          </div>
+          <a href="https://pve-01.ertechlab.com" target="_blank" class="btn-action" style="font-size:0.75rem; padding:0.25rem 0.65rem; text-decoration:none; display:flex; align-items:center; gap:0.35rem;" title="Open Proxmox VE Web Console">
+            <span>PVE Console</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="pihole-metrics-grid">
+        <div class="pihole-metric-item">
+          <div class="pihole-metric-label">Cluster CPU Load</div>
+          <div class="pihole-metric-val" id="pve-total-cpu">--%</div>
+          <div class="pihole-metric-sub" id="pve-cores-info">-- Cores across 4 Nodes</div>
+        </div>
+        <div class="pihole-metric-item">
+          <div class="pihole-metric-label">Cluster RAM Usage</div>
+          <div class="pihole-metric-val" style="color:var(--accent-purple);" id="pve-total-ram">-- GB</div>
+          <div class="pihole-metric-sub" id="pve-ram-sub">--% Allocated</div>
+        </div>
+        <div class="pihole-metric-item">
+          <div class="pihole-metric-label">Active Virtual Guests</div>
+          <div class="pihole-metric-val" style="color:var(--accent-cyan);" id="pve-vms-count">--</div>
+          <div class="pihole-metric-sub" id="pve-vms-sub">QEMU VMs & LXCs Running</div>
+        </div>
+        <div class="pihole-metric-item">
+          <div class="pihole-metric-label">NVMe / Local Storage</div>
+          <div class="pihole-metric-val" style="color:var(--accent-amber);" id="pve-storage-used">-- GB</div>
+          <div class="pihole-metric-sub" id="pve-storage-sub">--% Pool Usage</div>
+        </div>
+      </div>
+
+      <!-- Graphs Row: Node Load History Multi-Line Chart + Hypervisor Nodes Breakdown -->
+      <div class="pihole-graphs-row">
+        <!-- Live Node Load Multi-Line SVG Graph -->
+        <div class="pihole-graph-container">
+          <div class="pihole-graph-header">
+            <span class="pihole-graph-title">Node Load & Utilization Trends (Last 60 Minutes)</span>
+            <div class="pihole-legend">
+              <span class="legend-item"><span class="legend-color" style="background:#f97316;"></span>pve-01</span>
+              <span class="legend-item"><span class="legend-color" style="background:#38bdf8;"></span>pve-02</span>
+              <span class="legend-item"><span class="legend-color" style="background:#a855f7;"></span>pve-03</span>
+              <span class="legend-item"><span class="legend-color" style="background:#ef4444;"></span>pve-04</span>
+            </div>
+          </div>
+          <div class="pihole-svg-wrap" id="pve-chart-wrap">
+            <!-- Dynamic SVG Multi-Node Line/Area Chart -->
+          </div>
+        </div>
+
+        <!-- Hypervisor Nodes List Breakdown -->
+        <div class="pihole-upstreams-container">
+          <div class="pihole-graph-header">
+            <span class="pihole-graph-title">Proxmox Node Load Distribution</span>
+            <span style="font-size:0.7rem; color:var(--text-muted);" id="pve-nodes-count">4 Nodes</span>
+          </div>
+          <div class="pihole-upstreams-list" id="pve-nodes-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Homer Tag Filter Chips -->
     <div class="filter-chips" id="filter-chips-container">
       <div class="tag-chip active" data-category="all">#All Services</div>
@@ -1490,17 +1565,19 @@
 
     async function updateTelemetry(force = false) {
       try {
-        const [resStatus, resNodes, resCluster, resPihole] = await Promise.all([
+        const [resStatus, resNodes, resCluster, resPihole, resPve] = await Promise.all([
           fetch(`/api/status${force ? '?refresh=true' : ''}`),
           fetch('/api/nodes'),
           fetch('/api/cluster'),
-          fetch('/api/pihole')
+          fetch('/api/pihole'),
+          fetch('/api/pve')
         ]);
 
         const statusData = await resStatus.json();
         const nodesData = await resNodes.json();
         const clusterData = await resCluster.json();
         const piholeData = await resPihole.json();
+        const pveData = await resPve.json();
 
         // 1. Update Services Status & Latency
         let onlineCount = 0;
@@ -1564,6 +1641,11 @@
         // 4. Update Pi-hole DNS Sinkhole Telemetry & Graphs
         if (piholeData) {
           renderPiholeTelemetry(piholeData);
+        }
+
+        // 5. Update Proxmox VE Cluster Telemetry & Graphs
+        if (pveData) {
+          renderPveTelemetry(pveData);
         }
 
       } catch (err) {
@@ -1712,6 +1794,197 @@
           </div>
           <div class="upstream-progress-bg">
             <div class="upstream-progress-bar" style="width: ${pct}%;"></div>
+          </div>
+        `;
+        container.appendChild(itemEl);
+      });
+    }
+
+    function renderPveTelemetry(data) {
+      if (!data || !data.online || !data.cluster) {
+        const statusEl = document.getElementById('pve-status-text');
+        if (statusEl) statusEl.textContent = 'Connecting...';
+        return;
+      }
+
+      const c = data.cluster;
+      const v = data.vms_summary || {};
+
+      const statusEl = document.getElementById('pve-status-text');
+      if (statusEl) statusEl.textContent = `Quorate \u2022 ${c.nodes_online || 0} of ${c.nodes_total || 4} Online`;
+
+      const badgeCluster = document.getElementById('pve-badge-cluster');
+      if (badgeCluster) badgeCluster.textContent = `${c.name || 'pve-clust-01'} \u2022 ${c.nodes_total || 4} Nodes`;
+
+      // 1. Cluster CPU
+      const cpuEl = document.getElementById('pve-total-cpu');
+      if (cpuEl) cpuEl.textContent = `${(c.cpu_pct || 0).toFixed(1)}%`;
+
+      const coresEl = document.getElementById('pve-cores-info');
+      if (coresEl) coresEl.textContent = `${c.cores || 32} vCPUs across ${c.nodes_total || 4} Nodes`;
+
+      // 2. Cluster RAM
+      const ramEl = document.getElementById('pve-total-ram');
+      if (ramEl) ramEl.textContent = `${(c.mem_used_gb || 0).toFixed(1)} / ${(c.mem_max_gb || 0).toFixed(1)} GB`;
+
+      const ramSubEl = document.getElementById('pve-ram-sub');
+      if (ramSubEl) ramSubEl.textContent = `${(c.mem_pct || 0).toFixed(1)}% Allocated`;
+
+      // 3. Virtual Guests (VMs & LXCs)
+      const vmsEl = document.getElementById('pve-vms-count');
+      if (vmsEl) vmsEl.textContent = `${v.running || 0} / ${v.total || 0}`;
+
+      const vmsSubEl = document.getElementById('pve-vms-sub');
+      if (vmsSubEl) vmsSubEl.textContent = `QEMU VMs & LXCs Running`;
+
+      // 4. NVMe / Cluster Storage
+      const storageEl = document.getElementById('pve-storage-used');
+      if (storageEl) storageEl.textContent = `${(c.disk_used_gb || 0).toFixed(1)} / ${(c.disk_max_gb || 0).toFixed(1)} GB`;
+
+      const storageSubEl = document.getElementById('pve-storage-sub');
+      if (storageSubEl) storageSubEl.textContent = `${(c.disk_pct || 0).toFixed(1)}% Local Pool Used`;
+
+      // Render Multi-Node Load Chart
+      renderPveChart(data.history || []);
+
+      // Render PVE Nodes List Breakdown
+      renderPveNodes(data.nodes || []);
+    }
+
+    function renderPveChart(history) {
+      const container = document.getElementById('pve-chart-wrap');
+      if (!container || !history || history.length === 0) return;
+
+      const w = container.clientWidth || 560;
+      const h = 130;
+      const padBottom = 22;
+      const padTop = 10;
+      const padLeft = 32;
+      const padRight = 10;
+      const chartW = w - padLeft - padRight;
+      const chartH = h - padTop - padBottom;
+
+      const nodeColors = {
+        'pve-01': '#f97316',
+        'pve-02': '#38bdf8',
+        'pve-03': '#a855f7',
+        'pve-04': '#f43f5e'
+      };
+
+      let maxVal = 0;
+      history.forEach(pt => {
+        ['pve-01', 'pve-02', 'pve-03', 'pve-04', 'total_cpu'].forEach(k => {
+          if (pt[k] && pt[k] > maxVal) maxVal = pt[k];
+        });
+      });
+      maxVal = Math.max(25, Math.ceil(maxVal / 5) * 5);
+
+      const n = history.length;
+      const dx = chartW / Math.max(n - 1, 1);
+
+      const points = {
+        'pve-01': [],
+        'pve-02': [],
+        'pve-03': [],
+        'pve-04': [],
+        'total_cpu': []
+      };
+
+      history.forEach((pt, i) => {
+        const x = padLeft + i * dx;
+        ['pve-01', 'pve-02', 'pve-03', 'pve-04', 'total_cpu'].forEach(k => {
+          const val = pt[k] || 0;
+          const y = padTop + chartH - (val / maxVal) * chartH;
+          points[k].push(`${x.toFixed(1)},${y.toFixed(1)}`);
+        });
+      });
+
+      const baseY = (padTop + chartH).toFixed(1);
+      const totalAreaD = `M ${points['total_cpu'][0]} L ${points['total_cpu'].join(' L ')} L ${(padLeft + (n - 1) * dx).toFixed(1)},${baseY} L ${padLeft},${baseY} Z`;
+
+      const formatTime = ts => {
+        if (!ts) return '';
+        const d = new Date(ts * 1000);
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      };
+
+      const tStart = formatTime(history[0]?.time);
+      const tMid = formatTime(history[Math.floor(n / 2)]?.time);
+      const tEnd = formatTime(history[n - 1]?.time);
+
+      const halfVal = Math.round(maxVal / 2);
+
+      container.innerHTML = `
+        <svg width="100%" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="overflow:visible;">
+          <defs>
+            <linearGradient id="pveTotalGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.22"/>
+              <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.01"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Y-axis Labels & Grid lines -->
+          <text x="${padLeft - 6}" y="${padTop + 4}" text-anchor="end" fill="var(--text-muted)" font-size="9" font-family="'JetBrains Mono', monospace">${maxVal}%</text>
+          <line x1="${padLeft}" y1="${padTop}" x2="${w - padRight}" y2="${padTop}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3"/>
+
+          <text x="${padLeft - 6}" y="${padTop + chartH / 2 + 3}" text-anchor="end" fill="var(--text-muted)" font-size="9" font-family="'JetBrains Mono', monospace">${halfVal}%</text>
+          <line x1="${padLeft}" y1="${padTop + chartH / 2}" x2="${w - padRight}" y2="${padTop + chartH / 2}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3"/>
+
+          <text x="${padLeft - 6}" y="${baseY}" text-anchor="end" fill="var(--text-muted)" font-size="9" font-family="'JetBrains Mono', monospace">0%</text>
+          <line x1="${padLeft}" y1="${baseY}" x2="${w - padRight}" y2="${baseY}" stroke="rgba(255,255,255,0.12)"/>
+
+          <!-- Cluster Total CPU Area -->
+          <path d="${totalAreaD}" fill="url(#pveTotalGrad)"/>
+
+          <!-- Per-Node Lines -->
+          <path d="M ${points['pve-01'].join(' L ')}" fill="none" stroke="${nodeColors['pve-01']}" stroke-width="2" stroke-linecap="round"/>
+          <path d="M ${points['pve-02'].join(' L ')}" fill="none" stroke="${nodeColors['pve-02']}" stroke-width="2" stroke-linecap="round"/>
+          <path d="M ${points['pve-03'].join(' L ')}" fill="none" stroke="${nodeColors['pve-03']}" stroke-width="2" stroke-linecap="round"/>
+          <path d="M ${points['pve-04'].join(' L ')}" fill="none" stroke="${nodeColors['pve-04']}" stroke-width="2" stroke-linecap="round"/>
+
+          <!-- Time Labels -->
+          <text x="${padLeft}" y="${h - 4}" fill="var(--text-muted)" font-size="10" font-family="'JetBrains Mono', monospace">${tStart}</text>
+          <text x="${w / 2}" y="${h - 4}" text-anchor="middle" fill="var(--text-muted)" font-size="10" font-family="'JetBrains Mono', monospace">${tMid}</text>
+          <text x="${w - padRight}" y="${h - 4}" text-anchor="end" fill="var(--text-muted)" font-size="10" font-family="'JetBrains Mono', monospace">${tEnd}</text>
+        </svg>
+      `;
+    }
+
+    function renderPveNodes(nodes) {
+      const container = document.getElementById('pve-nodes-list');
+      if (!container) return;
+
+      const countEl = document.getElementById('pve-nodes-count');
+      if (countEl) countEl.textContent = `${nodes.length} Nodes Online`;
+
+      container.innerHTML = '';
+      const nodeColors = {
+        'pve-01': '#f97316',
+        'pve-02': '#38bdf8',
+        'pve-03': '#a855f7',
+        'pve-04': '#f43f5e'
+      };
+
+      nodes.forEach(n => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'upstream-item';
+        const color = nodeColors[n.node] || '#38bdf8';
+        itemEl.innerHTML = `
+          <div class="upstream-info" style="align-items:center;">
+            <div style="display:flex; align-items:center; gap:0.4rem;">
+              <span class="legend-color" style="background:${color}; width:8px; height:8px; border-radius:2px;"></span>
+              <span class="upstream-name" style="font-weight:700;">${n.node}</span>
+              <span style="font-size:0.65rem; color:var(--text-muted); font-family:'JetBrains Mono', monospace;">${n.ip}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.6rem; font-size:0.7rem; font-family:'JetBrains Mono', monospace;">
+              <span style="color:${color}; font-weight:700;">CPU ${n.cpu_pct}%</span>
+              <span style="color:var(--text-muted);">RAM ${n.mem_pct}% (${n.mem_used_gb}G)</span>
+              <span class="badge" style="background:rgba(255,255,255,0.06); font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:4px;">${n.vms_running || 0} VMs</span>
+            </div>
+          </div>
+          <div class="upstream-progress-bg" style="display:flex; gap:2px; height:4px; background:rgba(255,255,255,0.06);">
+            <div style="width:${Math.min(n.cpu_pct, 100)}%; background:${color}; border-radius:2px; height:100%; transition:width 0.4s ease;" title="CPU: ${n.cpu_pct}%"></div>
+            <div style="width:${Math.min(n.mem_pct, 100)}%; background:#34d399; opacity:0.6; border-radius:2px; height:100%; transition:width 0.4s ease;" title="RAM: ${n.mem_pct}%"></div>
           </div>
         `;
         container.appendChild(itemEl);
