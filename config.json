@@ -1,0 +1,195 @@
+{
+  "title": "ERTECHLab Command Center",
+  "subtitle": "High-Availability 9-Node K3s Cluster & Enterprise Homelab Operations",
+  "refresh_interval_sec": 15,
+  "theme": "midnight-glass",
+  "default_layout": "cards",
+  "categories": [
+    {
+      "id": "networking",
+      "name": "Networking & Ingress",
+      "icon": "network",
+      "color": "#38bdf8"
+    },
+    {
+      "id": "ai-automation",
+      "name": "AI & Automation",
+      "icon": "bot",
+      "color": "#a855f7"
+    },
+    {
+      "id": "web-tools",
+      "name": "Web Applications & Tools",
+      "icon": "layout-grid",
+      "color": "#34d399"
+    },
+    {
+      "id": "cluster-mgmt",
+      "name": "Cluster Management & Containers",
+      "icon": "server",
+      "color": "#f59e0b"
+    },
+    {
+      "id": "infrastructure",
+      "name": "Proxmox VE Hypervisors",
+      "icon": "cpu",
+      "color": "#ef4444"
+    }
+  ],
+  "services": [
+    {
+      "id": "dashboard",
+      "name": "ERTECHLab Command Center",
+      "category": "networking",
+      "url": "https://dashboard.ertechlab.com",
+      "internal_url": "http://192.168.0.80:30099",
+      "health_url": "http://192.168.0.80:30099/healthz",
+      "icon": "activity",
+      "description": "Unified cluster health telemetry & operations dashboard",
+      "tags": ["dashboard", "monitoring", "telemetry", "k8s"]
+    },
+    {
+      "id": "npm",
+      "name": "Nginx Proxy Manager",
+      "category": "networking",
+      "url": "https://npm.ertechlab.com",
+      "internal_url": "http://192.168.0.80:81",
+      "health_url": "http://192.168.0.80:81",
+      "icon": "shield-check",
+      "description": "Cluster Reverse Proxy & Let's Encrypt SSL Gateway",
+      "tags": ["proxy", "ssl", "ingress", "gateway"]
+    },
+    {
+      "id": "cloudflared",
+      "name": "Cloudflare Zero Trust Tunnel",
+      "category": "networking",
+      "url": "https://one.dash.cloudflare.com",
+      "internal_url": "https://one.dash.cloudflare.com",
+      "health_url": "https://one.dash.cloudflare.com",
+      "icon": "cloud",
+      "description": "Secure edge WAN ingress, access policies & DDoS protection",
+      "tags": ["tunnel", "cloudflare", "wan", "security"]
+    },
+    {
+      "id": "n8n",
+      "name": "n8n Automation Engine",
+      "category": "ai-automation",
+      "url": "https://n8n.ertechlab.com",
+      "internal_url": "http://192.168.0.80:30678",
+      "health_url": "http://192.168.0.80:30678/healthz",
+      "icon": "workflow",
+      "description": "Workflow automation, webhooks & AI orchestration platform",
+      "tags": ["automation", "workflows", "ai", "webhooks"]
+    },
+    {
+      "id": "printforge",
+      "name": "PrintForge 3D Platform",
+      "category": "web-tools",
+      "url": "https://printforge.ertechlab.com",
+      "internal_url": "http://192.168.0.80:30080",
+      "health_url": "http://192.168.0.80:30080",
+      "icon": "box",
+      "description": "3D printing portfolio, model catalog & slicing guides",
+      "tags": ["3dprint", "models", "portfolio", "web"]
+    },
+    {
+      "id": "it-tools",
+      "name": "IT-Tools Swiss Army Knife",
+      "category": "web-tools",
+      "url": "https://tools.ertechlab.com",
+      "internal_url": "http://192.168.0.80:30027",
+      "health_url": "http://192.168.0.80:30027",
+      "icon": "tool",
+      "description": "Handy developer & sysadmin utilities, encoders, regex & hashes",
+      "tags": ["tools", "dev", "utilities", "crypto"]
+    },
+    {
+      "id": "resume",
+      "name": "ERTECHLab Interactive Resume",
+      "category": "web-tools",
+      "url": "https://resume.ertechlab.com",
+      "internal_url": "http://192.168.0.80:30085",
+      "health_url": "http://192.168.0.80:30085",
+      "icon": "file-text",
+      "description": "Interactive systems architect & cloud engineer portfolio",
+      "tags": ["resume", "portfolio", "cloud", "devops"]
+    },
+    {
+      "id": "ffmpeg",
+      "name": "FFmpeg Video Studio",
+      "category": "web-tools",
+      "url": "https://ffmpeg.ertechlab.com",
+      "internal_url": "http://192.168.0.80:30086",
+      "health_url": "http://192.168.0.80:30086",
+      "icon": "video",
+      "description": "Automated H.265 / HEVC hardware-accelerated video converter",
+      "tags": ["video", "ffmpeg", "transcode", "h265"]
+    },
+    {
+      "id": "tomcat",
+      "name": "Apache Tomcat Enterprise",
+      "category": "web-tools",
+      "url": "https://tomcat.ertechlab.com",
+      "internal_url": "http://192.168.0.80:30087",
+      "health_url": "http://192.168.0.80:30087",
+      "icon": "coffee",
+      "description": "Java 21 LTS enterprise servlet container & microservices runtime",
+      "tags": ["java", "tomcat", "enterprise", "backend"]
+    },
+    {
+      "id": "portainer",
+      "name": "Portainer Community Edition",
+      "category": "cluster-mgmt",
+      "url": "https://portainer.ertechlab.com",
+      "internal_url": "http://192.168.0.80:30777",
+      "health_url": "http://192.168.0.80:30777/api/system/status",
+      "icon": "container",
+      "description": "Visual Kubernetes & container management web console",
+      "tags": ["k8s", "docker", "portainer", "management"]
+    },
+    {
+      "id": "pve-01",
+      "name": "pve-01 (Proxmox Node 1)",
+      "category": "infrastructure",
+      "url": "https://pve-01.ertechlab.com",
+      "internal_url": "https://192.168.0.31:8006",
+      "health_url": "https://192.168.0.31:8006",
+      "icon": "hard-drive",
+      "description": "Proxmox VE Hypervisor Host 01",
+      "tags": ["pve", "proxmox", "hypervisor", "node"]
+    },
+    {
+      "id": "pve-02",
+      "name": "pve-02 (Proxmox Node 2)",
+      "category": "infrastructure",
+      "url": "https://pve-02.ertechlab.com",
+      "internal_url": "https://192.168.0.32:8006",
+      "health_url": "https://192.168.0.32:8006",
+      "icon": "hard-drive",
+      "description": "Proxmox VE Hypervisor Host 02",
+      "tags": ["pve", "proxmox", "hypervisor", "node"]
+    },
+    {
+      "id": "pve-03",
+      "name": "pve-03 (Proxmox Node 3)",
+      "category": "infrastructure",
+      "url": "https://pve-03.ertechlab.com",
+      "internal_url": "https://192.168.0.33:8006",
+      "health_url": "https://192.168.0.33:8006",
+      "icon": "hard-drive",
+      "description": "Proxmox VE Hypervisor Host 03",
+      "tags": ["pve", "proxmox", "hypervisor", "node"]
+    },
+    {
+      "id": "pve-04",
+      "name": "pve-04 (Proxmox Node 4)",
+      "category": "infrastructure",
+      "url": "https://pve-04.ertechlab.com",
+      "internal_url": "https://192.168.0.34:8006",
+      "health_url": "https://192.168.0.34:8006",
+      "icon": "hard-drive",
+      "description": "Proxmox VE Hypervisor Host 04",
+      "tags": ["pve", "proxmox", "hypervisor", "node"]
+    }
+  ]
+}

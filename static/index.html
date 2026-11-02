@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="midnight-glass" data-layout="cards">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ERTECHLab Command Center</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='20' height='14' x='2' y='3' rx='2'/><line x1='8' x2='16' y1='21' y2='21'/><line x1='12' x2='12' y1='17' y2='21'/></svg>">
+  <style>
+    /* ==========================================================================
+       THEME DEFINITIONS (Dashy Style)
+       ========================================================================== */
+    :root, [data-theme="midnight-glass"] {
+      --bg-dark: #0a0e17;
+      --bg-pattern: radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
+                    radial-gradient(at 100% 0%, rgba(168, 85, 247, 0.12) 0px, transparent 50%),
+                    radial-gradient(at 50% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
+      --bg-header: rgba(10, 14, 23, 0.88);
+      --bg-card: rgba(15, 23, 42, 0.72);
+      --bg-card-hover: rgba(30, 41, 59, 0.88);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-highlight: rgba(56, 189, 248, 0.4);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-purple: #c084fc;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --glow: 0 0 24px rgba(56, 189, 248, 0.2);
+    }
+
+    [data-theme="cyberpunk-neon"] {
+      --bg-dark: #05050d;
+      --bg-pattern: linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255, 0, 85, 0.03) 1px, transparent 1px);
+      --bg-header: rgba(5, 5, 13, 0.94);
+      --bg-card: rgba(13, 13, 26, 0.85);
+      --bg-card-hover: rgba(22, 22, 42, 0.95);
+      --border-color: rgba(0, 240, 255, 0.2);
+      --border-highlight: #ff0055;
+      --text-main: #00f0ff;
+      --text-muted: #8b9bb4;
+      --accent-blue: #00f0ff;
+      --accent-purple: #ff0055;
+      --accent-emerald: #00ff66;
+      --accent-amber: #ffe600;
+      --accent-rose: #ff0055;
+      --glow: 0 0 20px rgba(0, 240, 255, 0.35);
+    }
+
+    [data-theme="nordic-frost"] {
+      --bg-dark: #242933;
+      --bg-pattern: radial-gradient(at 0% 0%, rgba(136, 192, 208, 0.12) 0px, transparent 50%),
+                    radial-gradient(at 100% 100%, rgba(129, 161, 193, 0.1) 0px, transparent 50%);
+      --bg-header: rgba(46, 52, 64, 0.92);
+      --bg-card: rgba(46, 52, 64, 0.75);
+      --bg-card-hover: rgba(59, 66, 82, 0.9);
+      --border-color: rgba(216, 222, 233, 0.1);
+      --border-highlight: #88c0d0;
+      --text-main: #eceff4;
+      --text-muted: #d8dee9;
+      --accent-blue: #88c0d0;
+      --accent-purple: #b48ead;
+      --accent-emerald: #a3be8c;
+      --accent-amber: #ebcb8b;
+      --accent-rose: #bf616a;
+      --glow: 0 0 20px rgba(136, 192, 208, 0.25);
+    }
+
+    [data-theme="oled-black"] {
+      --bg-dark: #000000;
+      --bg-pattern: none;
+      --bg-header: #000000;
+      --bg-card: #0a0a0a;
+      --bg-card-hover: #141414;
+      --border-color: #222222;
+      --border-highlight: #38bdf8;
+      --text-main: #ffffff;
+      --text-muted: #888888;
+      --accent-blue: #00a2ff;
+      --accent-purple: #a855f7;
+      --accent-emerald: #00e676;
+      --accent-amber: #ffab00;
+      --accent-rose: #ff1744;
+      --glow: none;
+    }
+
+    [data-theme="dracula-dark"] {
+      --bg-dark: #1e1f29;
+      --bg-pattern: radial-gradient(at 0% 0%, rgba(189, 147, 249, 0.12) 0px, transparent 50%),
+                    radial-gradient(at 100% 100%, rgba(80, 250, 123, 0.08) 0px, transparent 50%);
+      --bg-header: rgba(40, 42, 54, 0.92);
+      --bg-card: rgba(40, 42, 54, 0.8);
+      --bg-card-hover: rgba(68, 71, 90, 0.9);
+      --border-color: rgba(98, 114, 164, 0.3);
+      --border-highlight: #bd93f9;
+      --text-main: #f8f8f2;
+      --text-muted: #6272a4;
+      --accent-blue: #8be9fd;
+      --accent-purple: #bd93f9;
+      --accent-emerald: #50fa7b;
+      --accent-amber: #f1fa8c;
+      --accent-rose: #ff5555;
+      --glow: 0 0 20px rgba(189, 147, 249, 0.25);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image: var(--bg-pattern);
+      background-size: 32px 32px, 32px 32px, cover;
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ==========================================================================
+       HEADER & NAVIGATION
+       ========================================================================== */
+    header {
+      background: var(--bg-header);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 0.75rem 2rem;
+    }
+
+    .nav-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(56,189,248,0.25), rgba(168,85,247,0.25));
+      border: 1px solid var(--border-highlight);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--glow);
+    }
+
+    .brand-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-title .badge {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid var(--border-highlight);
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .brand-subtitle {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Live Telemetry Pills (Homepage style) */
+    .telemetry-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      flex-wrap: wrap;
+    }
+
+    .telemetry-pill {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      padding: 0.4rem 0.8rem;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+
+    .telemetry-pill:hover {
+      border-color: var(--border-highlight);
+      color: var(--text-main);
+    }
+
+    .telemetry-pill strong {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 8px var(--accent-emerald);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.9); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Controls: Search, Theme, Layout, Refresh */
+    .controls-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .search-box {
+      position: relative;
+      width: 260px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 2rem 0.5rem 0.85rem;
+      border-radius: 10px;
+      color: var(--text-main);
+      font-size: 0.825rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--border-highlight);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.2);
+    }
+
+    .search-shortcut {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.65rem;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border-color);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .btn-action {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 0.85rem;
+      border-radius: 10px;
+      color: var(--text-main);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--border-highlight);
+      transform: translateY(-1px);
+    }
+
+    .theme-select {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 0.75rem;
+      border-radius: 10px;
+      color: var(--text-main);
+      font-size: 0.8rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .theme-select option {
+      background: #0f172a;
+      color: #fff;
+    }
+
+    /* Layout Toggle */
+    .layout-switcher {
+      display: flex;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 2px;
+    }
+
+    .layout-btn {
+      background: transparent;
+      border: none;
+      padding: 0.35rem 0.65rem;
+      border-radius: 8px;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: all 0.2s ease;
+    }
+
+    .layout-btn.active {
+      background: var(--border-highlight);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       MAIN CONTAINER & GLANCE BARS
+       ========================================================================== */
+    main {
+      max-width: 1600px;
+      margin: 1.5rem auto 3rem auto;
+      padding: 0 2rem;
+      flex: 1;
+      width: 100%;
+    }
+
+    /* Glance Cluster Strip (Glance style) */
+    .glance-strip-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .glance-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .glance-title {
+      font-size: 0.825rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nodes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.65rem;
+    }
+
+    .node-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+
+    .node-item:hover {
+      border-color: var(--border-highlight);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .node-name-ip {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .node-name {
+      font-size: 0.775rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .node-ip {
+      font-size: 0.675rem;
+      color: var(--text-muted);
+    }
+
+    .node-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .node-badge.ready { color: var(--accent-emerald); }
+    .node-badge.not-ready { color: var(--accent-rose); }
+
+    /* Homer Tag Filter Chips */
+    .filter-chips {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+    }
+
+    .tag-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .tag-chip:hover, .tag-chip.active {
+      background: var(--border-highlight);
+      border-color: var(--border-highlight);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       CATEGORY SECTIONS
+       ========================================================================== */
+    .category-section {
+      margin-bottom: 2rem;
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .category-icon {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-blue);
+    }
+
+    .category-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .category-count {
+      font-size: 0.7rem;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-color);
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       LAYOUT MODES (CARDS / COMPACT / ROWS)
+       ========================================================================== */
+    /* MODE 1: CARDS (Heimdall Style) */
+    [data-layout="cards"] .services-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .service-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1.25rem;
+      position: relative;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .service-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-highlight);
+      transform: translateY(-2px);
+      box-shadow: var(--glow);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .service-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: var(--accent-blue);
+    }
+
+    .service-meta {
+      flex: 1;
+    }
+
+    .service-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 0.2rem;
+    }
+
+    .service-desc {
+      font-size: 0.775rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .tag-badge {
+      font-size: 0.65rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      padding: 0.15rem 0.45rem;
+      border-radius: 6px;
+      color: var(--text-muted);
+    }
+
+    .card-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 0.85rem;
+      border-top: 1px solid var(--border-color);
+      gap: 0.5rem;
+    }
+
+    .btn-link-public {
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid var(--border-highlight);
+      color: var(--accent-blue);
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-link-public:hover {
+      background: var(--border-highlight);
+      color: #fff;
+    }
+
+    .btn-link-internal {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 0.45rem 0.65rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-link-internal:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .status-badge.online { color: var(--accent-emerald); }
+    .status-badge.degraded { color: var(--accent-amber); }
+    .status-badge.offline { color: var(--accent-rose); }
+
+    /* MODE 2: COMPACT (Homepage Style) */
+    [data-layout="compact"] .services-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 0.85rem;
+    }
+
+    [data-layout="compact"] .service-card {
+      padding: 0.85rem 1rem;
+    }
+
+    [data-layout="compact"] .service-desc,
+    [data-layout="compact"] .card-tags,
+    [data-layout="compact"] .btn-link-internal {
+      display: none;
+    }
+
+    [data-layout="compact"] .card-top {
+      margin-bottom: 0.5rem;
+    }
+
+    [data-layout="compact"] .service-icon-box {
+      width: 36px;
+      height: 36px;
+    }
+
+    /* MODE 3: ROWS (Glance Style) */
+    [data-layout="rows"] .services-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    [data-layout="rows"] .service-card {
+      flex-direction: row;
+      align-items: center;
+      padding: 0.65rem 1rem;
+    }
+
+    [data-layout="rows"] .card-top {
+      margin-bottom: 0;
+      align-items: center;
+      flex: 1;
+    }
+
+    [data-layout="rows"] .card-tags {
+      display: none;
+    }
+
+    [data-layout="rows"] .card-actions {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    [data-layout="rows"] .service-icon-box {
+      width: 34px;
+      height: 34px;
+    }
+
+    /* ==========================================================================
+       MODAL: CUSTOMIZE / ADD SERVICE (Dashy Style)
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #0f172a;
+      border: 1px solid var(--border-highlight);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 650px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .modal-tabs {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem 0 1.5rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-tab {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.5rem 1rem;
+      font-size: 0.825rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+
+    .modal-tab.active {
+      color: var(--accent-blue);
+      border-bottom-color: var(--accent-blue);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      padding: 0.6rem 0.85rem;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .form-textarea {
+      font-family: monospace;
+      font-size: 0.8rem;
+      min-height: 280px;
+      resize: vertical;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--border-highlight);
+    }
+
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #1e293b;
+      border: 1px solid var(--border-highlight);
+      color: #fff;
+      padding: 0.75rem 1.25rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      z-index: 200;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       TOP HEADER & NAV
+       ======================================================================== -->
+  <header>
+    <div class="nav-container">
+      <div class="brand-wrap">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div>
+          <div class="brand-title">
+            ERTECHLab <span class="badge">Enterprise Command</span>
+          </div>
+          <div class="brand-subtitle" id="cluster-subtitle">K3s High-Availability Cluster</div>
+        </div>
+      </div>
+
+      <!-- Telemetry Pills (Homepage Style) -->
+      <div class="telemetry-bar">
+        <div class="telemetry-pill">
+          <span class="pulse-dot"></span>
+          <span>Nodes: <strong id="telemetry-nodes">9 / 9 Ready</strong></span>
+        </div>
+        <div class="telemetry-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18M15 3v18"/></svg>
+          <span>Pods: <strong id="telemetry-pods">25 / 25</strong></span>
+        </div>
+        <div class="telemetry-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span id="live-clock">--:--:--</span>
+        </div>
+        <div class="telemetry-pill">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Avg: <strong id="telemetry-latency">-- ms</strong></span>
+        </div>
+      </div>
+
+      <!-- Toolbar Controls -->
+      <div class="controls-wrap">
+        <!-- Search with hotkey '/' (Homer style) -->
+        <div class="search-box">
+          <input type="text" id="search-input" class="search-input" placeholder="Search apps, tags, IPs...">
+          <span class="search-shortcut">/</span>
+        </div>
+
+        <!-- Layout Selector (Dashy style) -->
+        <div class="layout-switcher">
+          <button class="layout-btn active" data-layout-mode="cards" title="Heimdall Cards View">Cards</button>
+          <button class="layout-btn" data-layout-mode="compact" title="Homepage Compact View">Compact</button>
+          <button class="layout-btn" data-layout-mode="rows" title="Glance Rows View">Rows</button>
+        </div>
+
+        <!-- Theme Selector (Dashy style) -->
+        <select id="theme-select" class="theme-select" title="Switch Theme">
+          <option value="midnight-glass">Midnight Glass</option>
+          <option value="cyberpunk-neon">Cyberpunk Neon</option>
+          <option value="nordic-frost">Nordic Frost</option>
+          <option value="oled-black">OLED Pure Black</option>
+          <option value="dracula-dark">Dracula Dark</option>
+        </select>
+
+        <!-- Refresh Button -->
+        <button id="btn-refresh" class="btn-action" title="Refresh Status">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+        </button>
+
+        <!-- Customizer Modal Button (Dashy style) -->
+        <button id="btn-customize" class="btn-action" title="Customize Dashboard">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span>Edit</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       MAIN BODY
+       ======================================================================== -->
+  <main>
+    <!-- Glance Telemetry Strip: K3s Cluster Nodes (Glance Style) -->
+    <div class="glance-strip-card">
+      <div class="glance-header">
+        <div class="glance-title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>
+          <span>K3s Cluster Nodes Telemetry</span>
+        </div>
+        <div class="telemetry-pill" style="padding: 0.2rem 0.5rem; font-size: 0.7rem;">
+          <span class="pulse-dot"></span>
+          <span id="nodes-ready-summary">9 of 9 Ready</span>
+        </div>
+      </div>
+      <div class="nodes-grid" id="cluster-nodes-grid">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- Homer Tag Filter Chips -->
+    <div class="filter-chips" id="filter-chips-container">
+      <div class="tag-chip active" data-category="all">#All Services</div>
+      <!-- Populated from config -->
+    </div>
+
+    <!-- Dynamic Category Sections & Cards -->
+    <div id="categories-root">
+      <!-- Generated by JS -->
+    </div>
+  </main>
+
+  <!-- ========================================================================
+       MODAL: CUSTOMIZE / ADD SERVICES (Dashy Style)
+       ======================================================================== -->
+  <div class="modal-overlay" id="config-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Dashboard Customizer</h3>
+        <button id="modal-close-btn" class="btn-action" style="padding: 0.35rem 0.65rem;">&times;</button>
+      </div>
+
+      <div class="modal-tabs">
+        <button class="modal-tab active" data-tab="form">Add Service</button>
+        <button class="modal-tab" data-tab="json">Raw JSON Config</button>
+      </div>
+
+      <div class="modal-body" id="tab-form-content">
+        <div class="form-group">
+          <label class="form-label">Service Name</label>
+          <input type="text" id="add-name" class="form-input" placeholder="e.g. Nextcloud">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select id="add-category" class="form-select">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Public / Cloudflare URL</label>
+          <input type="text" id="add-url" class="form-input" placeholder="https://app.ertechlab.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Direct Internal LAN URL</label>
+          <input type="text" id="add-internal" class="form-input" placeholder="http://192.168.0.80:30000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Health Probe URL</label>
+          <input type="text" id="add-health" class="form-input" placeholder="Leave empty to use Internal URL">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Icon</label>
+          <select id="add-icon" class="form-select">
+            <option value="activity">Activity / Pulse</option>
+            <option value="shield-check">Shield / Security / Proxy</option>
+            <option value="cloud">Cloud / Tunnel</option>
+            <option value="workflow">Workflow / Automation</option>
+            <option value="box">Box / 3D / Storage</option>
+            <option value="tool">Tool / Swiss Army Knife</option>
+            <option value="file-text">Document / Resume</option>
+            <option value="video">Video / Multimedia</option>
+            <option value="coffee">Coffee / Java / Tomcat</option>
+            <option value="container">Container / Portainer</option>
+            <option value="hard-drive">Hard Drive / Proxmox</option>
+            <option value="server">Server / Cluster</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <input type="text" id="add-desc" class="form-input" placeholder="Brief service description">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tags (comma separated)</label>
+          <input type="text" id="add-tags" class="form-input" placeholder="k8s, proxy, tool">
+        </div>
+      </div>
+
+      <div class="modal-body" id="tab-json-content" style="display: none;">
+        <textarea id="config-editor" class="form-textarea"></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button id="modal-cancel-btn" class="btn-action">Cancel</button>
+        <button id="modal-save-btn" class="btn-action" style="background: var(--border-highlight); border-color: var(--border-highlight); color: #fff;">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <!-- ========================================================================
+       JAVASCRIPT APP LOGIC
+       ======================================================================== -->
+  <script>
+    let appConfig = null;
+    let serviceStatuses = {};
+    let activeCategory = 'all';
+    let currentTab = 'form';
+
+    // SVG Icon Map (Heimdall & Lucide crisp vectors)
+    const ICON_SVGS = {
+      'activity': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
+      'shield-check': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>',
+      'cloud': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>',
+      'workflow': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/></svg>',
+      'box': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>',
+      'tool': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+      'file-text': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>',
+      'video': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2"/></svg>',
+      'coffee': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>',
+      'container': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>',
+      'hard-drive': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" x2="2" y1="12" y2="12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" x2="6.01" y1="16" y2="16"/><line x1="10" x2="10.01" y1="16" y2="16"/></svg>',
+      'server': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>',
+      'network': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>',
+      'bot': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="12" x="3" y="6" rx="2"/><path d="M9 14v1"/><path d="M15 14v1"/><path d="M12 2v4"/><circle cx="8" cy="11" r="1"/><circle cx="16" cy="11" r="1"/></svg>',
+      'layout-grid': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>',
+      'cpu': '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>'
+    };
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // Live Clock
+    setInterval(() => {
+      const d = new Date();
+      document.getElementById('live-clock').textContent = d.toLocaleTimeString();
+    }, 1000);
+
+    // Theme Management
+    const themeSelect = document.getElementById('theme-select');
+    const savedTheme = localStorage.getItem('ertechlab_theme') || 'midnight-glass';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeSelect.value = savedTheme;
+
+    themeSelect.addEventListener('change', (e) => {
+      const chosen = e.target.value;
+      document.documentElement.setAttribute('data-theme', chosen);
+      localStorage.setItem('ertechlab_theme', chosen);
+      showToast(`Theme switched to ${e.target.options[e.target.selectedIndex].text}`);
+    });
+
+    // Layout Switching
+    const layoutBtns = document.querySelectorAll('.layout-btn');
+    const savedLayout = localStorage.getItem('ertechlab_layout') || 'cards';
+    document.documentElement.setAttribute('data-layout', savedLayout);
+    layoutBtns.forEach(b => {
+      b.classList.toggle('active', b.dataset.layoutMode === savedLayout);
+      b.addEventListener('click', () => {
+        layoutBtns.forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        const mode = b.dataset.layoutMode;
+        document.documentElement.setAttribute('data-layout', mode);
+        localStorage.setItem('ertechlab_layout', mode);
+      });
+    });
+
+    async function loadConfig() {
+      try {
+        const res = await fetch('/api/config');
+        appConfig = await res.json();
+        renderDashboard();
+      } catch (err) {
+        console.error('Failed to load config:', err);
+      }
+    }
+
+    function renderDashboard() {
+      if (!appConfig) return;
+
+      document.title = appConfig.title || 'ERTECHLab Command Center';
+
+      // 1. Render Filter Chips (Homer style)
+      const chipsRoot = document.getElementById('filter-chips-container');
+      chipsRoot.innerHTML = `<div class="tag-chip ${activeCategory === 'all' ? 'active' : ''}" data-category="all">#All Services</div>`;
+      (appConfig.categories || []).forEach(cat => {
+        const chip = document.createElement('div');
+        chip.className = `tag-chip ${activeCategory === cat.id ? 'active' : ''}`;
+        chip.dataset.category = cat.id;
+        chip.textContent = `#${cat.name}`;
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('.tag-chip').forEach(c => c.classList.remove('active'));
+          chip.classList.add('active');
+          activeCategory = cat.id;
+          filterServices();
+        });
+        chipsRoot.appendChild(chip);
+      });
+
+      // All category chip event
+      chipsRoot.querySelector('[data-category="all"]').addEventListener('click', function() {
+        document.querySelectorAll('.tag-chip').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        activeCategory = 'all';
+        filterServices();
+      });
+
+      // 2. Populate Modal Category select
+      const catSelect = document.getElementById('add-category');
+      catSelect.innerHTML = '';
+      (appConfig.categories || []).forEach(cat => {
+        const opt = document.createElement('option');
+        opt.value = cat.id;
+        opt.textContent = cat.name;
+        catSelect.appendChild(opt);
+      });
+
+      // 3. Render Categories & Service Cards (Heimdall & Dashy style)
+      const root = document.getElementById('categories-root');
+      root.innerHTML = '';
+
+      (appConfig.categories || []).forEach(cat => {
+        const catServices = (appConfig.services || []).filter(s => s.category === cat.id);
+        if (catServices.length === 0) return;
+
+        const sec = document.createElement('section');
+        sec.className = 'category-section';
+        sec.id = `cat-sec-${cat.id}`;
+        sec.dataset.category = cat.id;
+
+        const catIconSvg = ICON_SVGS[cat.icon] || ICON_SVGS['layout-grid'];
+
+        sec.innerHTML = `
+          <div class="category-header">
+            <div class="category-icon">${catIconSvg}</div>
+            <h2 class="category-title">${cat.name}</h2>
+            <span class="category-count">${catServices.length}</span>
+          </div>
+          <div class="services-container" id="container-${cat.id}"></div>
+        `;
+
+        root.appendChild(sec);
+
+        const container = sec.querySelector(`#container-${cat.id}`);
+        catServices.forEach(s => {
+          const card = document.createElement('div');
+          card.className = 'service-card';
+          card.id = `service-${s.id}`;
+          card.dataset.name = (s.name || '').toLowerCase();
+          card.dataset.desc = (s.description || '').toLowerCase();
+          card.dataset.tags = (s.tags || []).join(' ').toLowerCase();
+
+          const iconSvg = ICON_SVGS[s.icon] || ICON_SVGS['activity'];
+
+          const tagsHtml = (s.tags || []).map(t => `<span class="tag-badge">#${t}</span>`).join('');
+
+          card.innerHTML = `
+            <div>
+              <div class="card-top">
+                <div class="service-icon-box">${iconSvg}</div>
+                <div class="service-meta">
+                  <h3 class="service-name">${s.name}</h3>
+                  <p class="service-desc">${s.description || ''}</p>
+                </div>
+              </div>
+              <div class="card-tags">${tagsHtml}</div>
+            </div>
+            <div class="card-actions">
+              <div class="status-badge status-offline" id="badge-${s.id}" title="Health status">
+                <span class="pulse-dot" style="width:6px; height:6px;"></span>
+                <span class="status-text">Probing...</span>
+              </div>
+              <div style="display: flex; gap: 0.4rem; align-items: center;">
+                ${s.internal_url ? `<a href="${s.internal_url}" target="_blank" rel="noopener" class="btn-link-internal" title="Direct LAN IP: ${s.internal_url}">LAN</a>` : ''}
+                <a href="${s.url}" target="_blank" rel="noopener" class="btn-link-public" title="Open Public Gateway">
+                  <span>Open</span>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+                </a>
+              </div>
+            </div>
+          `;
+
+          container.appendChild(card);
+        });
+      });
+
+      filterServices();
+    }
+
+    function filterServices() {
+      const searchVal = document.getElementById('search-input').value.toLowerCase().trim();
+      const sections = document.querySelectorAll('.category-section');
+
+      sections.forEach(sec => {
+        const catId = sec.dataset.category;
+        const matchesCategory = (activeCategory === 'all' || activeCategory === catId);
+
+        let visibleInCat = 0;
+        const cards = sec.querySelectorAll('.service-card');
+        cards.forEach(card => {
+          const name = card.dataset.name;
+          const desc = card.dataset.desc;
+          const tags = card.dataset.tags;
+          const matchesSearch = !searchVal || name.includes(searchVal) || desc.includes(searchVal) || tags.includes(searchVal);
+
+          if (matchesCategory && matchesSearch) {
+            card.style.display = 'flex';
+            visibleInCat++;
+          } else {
+            card.style.display = 'none';
+          }
+        });
+
+        sec.style.display = visibleInCat > 0 ? 'block' : 'none';
+      });
+    }
+
+    async function updateTelemetry(force = false) {
+      try {
+        const [resStatus, resNodes, resCluster] = await Promise.all([
+          fetch(`/api/status${force ? '?refresh=true' : ''}`),
+          fetch('/api/nodes'),
+          fetch('/api/cluster')
+        ]);
+
+        const statusData = await resStatus.json();
+        const nodesData = await resNodes.json();
+        const clusterData = await resCluster.json();
+
+        // 1. Update Services Status & Latency
+        let onlineCount = 0;
+        let totalLat = 0;
+        let latSamples = 0;
+
+        if (statusData.services) {
+          statusData.services.forEach(item => {
+            serviceStatuses[item.id] = item;
+            if (item.status === 'online') {
+              onlineCount++;
+              if (item.latency_ms > 0) {
+                totalLat += item.latency_ms;
+                latSamples++;
+              }
+            }
+          });
+        }
+
+        updateStatusBadges();
+
+        const avgLat = latSamples > 0 ? Math.round(totalLat / latSamples) : 22;
+        document.getElementById('telemetry-latency').textContent = `${avgLat} ms`;
+
+        // 2. Update Cluster Nodes Glance Bar
+        if (nodesData.nodes) {
+          const grid = document.getElementById('cluster-nodes-grid');
+          grid.innerHTML = '';
+          let readyNodesCount = 0;
+
+          nodesData.nodes.forEach(n => {
+            const isReady = n.status === 'Ready';
+            if (isReady) readyNodesCount++;
+
+            const nodeEl = document.createElement('div');
+            nodeEl.className = 'node-item';
+            nodeEl.innerHTML = `
+              <div class="node-name-ip">
+                <span class="node-name">${n.name}</span>
+                <span class="node-ip">${n.ip}</span>
+              </div>
+              <div class="node-badge ${isReady ? 'ready' : 'not-ready'}">
+                <span class="pulse-dot" style="${isReady ? '' : 'background:var(--accent-rose); box-shadow:0 0 8px var(--accent-rose);'}"></span>
+                <span>${n.latency_ms}ms</span>
+              </div>
+            `;
+            grid.appendChild(nodeEl);
+          });
+
+          document.getElementById('telemetry-nodes').textContent = `${readyNodesCount} / ${nodesData.nodes.length} Ready`;
+          document.getElementById('nodes-ready-summary').textContent = `${readyNodesCount} of ${nodesData.nodes.length} Ready`;
+        }
+
+        // 3. Update Cluster Pods
+        if (clusterData) {
+          const runningPods = clusterData.running_pods || 25;
+          const totalPods = clusterData.total_pods || 25;
+          document.getElementById('telemetry-pods').textContent = `${runningPods} / ${totalPods}`;
+        }
+
+      } catch (err) {
+        console.error('Telemetry update failed:', err);
+      }
+    }
+
+    function updateStatusBadges() {
+      Object.keys(serviceStatuses).forEach(id => {
+        const item = serviceStatuses[id];
+        const badge = document.getElementById(`badge-${id}`);
+        if (!badge) return;
+
+        badge.className = `status-badge status-${item.status}`;
+        const text = badge.querySelector('.status-text');
+
+        if (item.status === 'online') {
+          text.textContent = `${item.latency_ms}ms`;
+        } else if (item.status === 'degraded') {
+          text.textContent = item.msg || 'Degraded';
+        } else {
+          text.textContent = 'Offline';
+        }
+      });
+    }
+
+    // Modal tabs & form handling
+    document.querySelectorAll('.modal-tab').forEach(tabBtn => {
+      tabBtn.addEventListener('click', () => {
+        document.querySelectorAll('.modal-tab').forEach(b => b.classList.remove('active'));
+        tabBtn.classList.add('active');
+        currentTab = tabBtn.dataset.tab;
+        if (currentTab === 'form') {
+          document.getElementById('tab-form-content').style.display = 'block';
+          document.getElementById('tab-json-content').style.display = 'none';
+        } else {
+          document.getElementById('tab-form-content').style.display = 'none';
+          document.getElementById('tab-json-content').style.display = 'block';
+          document.getElementById('config-editor').value = JSON.stringify(appConfig, null, 2);
+        }
+      });
+    });
+
+    const modal = document.getElementById('config-modal');
+    const editor = document.getElementById('config-editor');
+
+    document.getElementById('btn-customize').addEventListener('click', () => {
+      editor.value = JSON.stringify(appConfig, null, 2);
+      modal.classList.add('active');
+    });
+
+    document.getElementById('modal-close-btn').addEventListener('click', () => modal.classList.remove('active'));
+    document.getElementById('modal-cancel-btn').addEventListener('click', () => modal.classList.remove('active'));
+
+    document.getElementById('modal-save-btn').addEventListener('click', async () => {
+      let newConfig = null;
+
+      if (currentTab === 'form') {
+        const name = document.getElementById('add-name').value.trim();
+        if (!name) {
+          alert('Please enter a service name');
+          return;
+        }
+        const id = name.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
+        const cat = document.getElementById('add-category').value;
+        const url = document.getElementById('add-url').value.trim() || `https://${id}.ertechlab.com`;
+        const internal = document.getElementById('add-internal').value.trim();
+        const health = document.getElementById('add-health').value.trim() || internal || url;
+        const icon = document.getElementById('add-icon').value;
+        const desc = document.getElementById('add-desc').value.trim();
+        const tags = document.getElementById('add-tags').value.split(',').map(t => t.trim()).filter(Boolean);
+
+        const newService = {
+          id: id,
+          name: name,
+          category: cat,
+          url: url,
+          internal_url: internal,
+          health_url: health,
+          icon: icon,
+          description: desc,
+          tags: tags
+        };
+
+        newConfig = JSON.parse(JSON.stringify(appConfig));
+        newConfig.services.push(newService);
+      } else {
+        try {
+          newConfig = JSON.parse(editor.value);
+        } catch (err) {
+          alert('Invalid JSON syntax: ' + err.message);
+          return;
+        }
+      }
+
+      try {
+        const res = await fetch('/api/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newConfig)
+        });
+        const out = await res.json();
+        if (out.success) {
+          modal.classList.remove('active');
+          showToast('Dashboard updated successfully!');
+          await loadConfig();
+          await updateTelemetry(true);
+        } else {
+          alert('Save error: ' + out.error);
+        }
+      } catch (err) {
+        alert('Network error saving config: ' + err.message);
+      }
+    });
+
+    // Keyboard Hotkeys (Homer style '/')
+    window.addEventListener('keydown', (e) => {
+      if (e.key === '/' && document.activeElement !== document.getElementById('search-input') && !modal.classList.contains('active')) {
+        e.preventDefault();
+        document.getElementById('search-input').focus();
+      }
+      if (e.key === 'Escape') {
+        if (modal.classList.contains('active')) {
+          modal.classList.remove('active');
+        } else {
+          document.getElementById('search-input').value = '';
+          filterServices();
+        }
+      }
+    });
+
+    document.getElementById('search-input').addEventListener('input', filterServices);
+    document.getElementById('btn-refresh').addEventListener('click', () => {
+      showToast('Refreshing health probes...');
+      updateTelemetry(true);
+    });
+
+    // Init
+    (async () => {
+      await loadConfig();
+      await updateTelemetry(false);
+      setInterval(() => updateTelemetry(false), 15000);
+    })();
+  </script>
+</body>
+</html>
