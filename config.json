@@ -71,6 +71,17 @@
       "tags": ["tunnel", "cloudflare", "wan", "security"]
     },
     {
+      "id": "pihole",
+      "name": "Pi-hole DNS Sinkhole",
+      "category": "networking",
+      "url": "http://192.168.0.2/admin/",
+      "internal_url": "http://192.168.0.2/admin/",
+      "health_url": "http://192.168.0.2/api/stats/summary",
+      "icon": "shield-check",
+      "description": "Network-wide recursive DNS sinkhole & ad blocker (Pi-hole v6 on 192.168.0.2)",
+      "tags": ["pihole", "dns", "security", "adblock"]
+    },
+    {
       "id": "n8n",
       "name": "n8n Automation Engine",
       "category": "ai-automation",

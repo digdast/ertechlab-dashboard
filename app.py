@@ -30,6 +30,7 @@ except Exception:
 CACHE_STATUS = {"timestamp": 0, "data": []}
 CACHE_NODES = {"timestamp": 0, "data": []}
 CACHE_CLUSTER = {"timestamp": 0, "data": {}}
+CACHE_PIHOLE = {"timestamp": 0, "data": {}}
 
 FALLBACK_NODES = [
     {"name": "k3s-cp-01", "ip": "192.168.0.80", "role": "control-plane,etcd"},
@@ -277,6 +278,45 @@ def get_services_status(force=False):
     CACHE_STATUS["data"] = results
     return results
 
+def get_pihole_telemetry():
+    now = time.time()
+    if now - CACHE_PIHOLE["timestamp"] < 10 and CACHE_PIHOLE["data"]:
+        return CACHE_PIHOLE["data"]
+
+    pihole_data = {
+        "online": False,
+        "summary": {},
+        "history": [],
+        "upstreams": []
+    }
+
+    try:
+        # Fetch summary
+        req_sum = urllib.request.Request("http://192.168.0.2/api/stats/summary", headers={"User-Agent": "ERTECHLab-Dashboard/3.0"})
+        with urllib.request.urlopen(req_sum, timeout=2.5) as r:
+            pihole_data["summary"] = json.loads(r.read().decode())
+            pihole_data["online"] = True
+
+        # Fetch history (last 36 points = 6 hours)
+        req_hist = urllib.request.Request("http://192.168.0.2/api/history", headers={"User-Agent": "ERTECHLab-Dashboard/3.0"})
+        with urllib.request.urlopen(req_hist, timeout=2.5) as r:
+            hist_json = json.loads(r.read().decode())
+            h = hist_json.get("history", [])
+            pihole_data["history"] = h[-36:] if len(h) > 36 else h
+
+        # Fetch upstreams
+        req_up = urllib.request.Request("http://192.168.0.2/api/stats/upstreams", headers={"User-Agent": "ERTECHLab-Dashboard/3.0"})
+        with urllib.request.urlopen(req_up, timeout=2.5) as r:
+            up_json = json.loads(r.read().decode())
+            pihole_data["upstreams"] = up_json.get("upstreams", [])
+
+    except Exception as e:
+        print(f"Error fetching Pi-hole telemetry from 192.168.0.2: {e}")
+
+    CACHE_PIHOLE["timestamp"] = now
+    CACHE_PIHOLE["data"] = pihole_data
+    return pihole_data
+
 class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=STATIC_DIR, **kwargs)
@@ -300,6 +340,11 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
         if self.path.startswith("/api/cluster"):
             cluster_data = get_k8s_cluster_telemetry()
             self.send_json_response(cluster_data)
+            return
+
+        if self.path.startswith("/api/pihole"):
+            data = get_pihole_telemetry()
+            self.send_json_response(data)
             return
 
         if self.path == "/api/config":

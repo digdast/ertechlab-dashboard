@@ -427,6 +427,166 @@
     .node-badge.ready { color: var(--accent-emerald); }
     .node-badge.not-ready { color: var(--accent-rose); }
 
+    /* Pi-hole Telemetry & Graphs */
+    .pihole-card {
+      margin-bottom: 1.5rem;
+    }
+
+    .pihole-metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.85rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .pihole-metric-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      transition: all 0.2s ease;
+    }
+
+    .pihole-metric-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--border-highlight);
+    }
+
+    .pihole-metric-label {
+      font-size: 0.725rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .pihole-metric-val {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.2;
+    }
+
+    .pihole-metric-sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .pihole-graphs-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 900px) {
+      .pihole-graphs-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .pihole-graph-container, .pihole-upstreams-container {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pihole-graph-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .pihole-graph-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .pihole-legend {
+      display: flex;
+      gap: 0.75rem;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .legend-color {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+    }
+
+    .pihole-svg-wrap {
+      width: 100%;
+      height: 130px;
+      position: relative;
+    }
+
+    .pihole-upstreams-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      overflow-y: auto;
+      max-height: 130px;
+    }
+
+    .upstream-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .upstream-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.725rem;
+    }
+
+    .upstream-name {
+      color: var(--text-main);
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .upstream-stats {
+      color: var(--text-muted);
+    }
+
+    .upstream-progress-bg {
+      width: 100%;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .upstream-progress-bar {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #38bdf8, #818cf8);
+      transition: width 0.4s ease;
+    }
+
     /* Homer Tag Filter Chips */
     .filter-chips {
       display: flex;
@@ -944,6 +1104,80 @@
       </div>
     </div>
 
+    <!-- Pi-hole v6 Cyber DNS Sinkhole Telemetry & Graphs -->
+    <div class="glance-strip-card pihole-card" id="pihole-widget">
+      <div class="glance-header">
+        <div class="glance-title" style="display:flex; align-items:center; gap:0.6rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
+          <span style="font-weight:700; letter-spacing:-0.2px;">Pi-hole DNS Sinkhole Telemetry</span>
+          <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-size:0.7rem; padding:0.15rem 0.5rem; border-radius:999px;">192.168.0.2</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <div class="telemetry-pill" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;">
+            <span class="pulse-dot" style="background:#10b981; box-shadow:0 0 8px #10b981;"></span>
+            <span id="pihole-status-text">Active & Blocking</span>
+          </div>
+          <a href="http://192.168.0.2/admin/" target="_blank" class="btn-action" style="font-size:0.75rem; padding:0.25rem 0.65rem; text-decoration:none; display:flex; align-items:center; gap:0.35rem;" title="Open Pi-hole Web Admin">
+            <span>Admin UI</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="pihole-metrics-grid">
+        <div class="pihole-metric-item">
+          <div class="pihole-metric-label">Total Queries Today</div>
+          <div class="pihole-metric-val" id="pihole-total-queries">--</div>
+          <div class="pihole-metric-sub" id="pihole-frequency">Queries / sec</div>
+        </div>
+        <div class="pihole-metric-item">
+          <div class="pihole-metric-label">Queries Blocked</div>
+          <div class="pihole-metric-val" style="color:var(--accent-rose);" id="pihole-blocked-queries">--</div>
+          <div class="pihole-metric-sub" id="pihole-blocked-pct">--% Block Rate</div>
+        </div>
+        <div class="pihole-metric-item">
+          <div class="pihole-metric-label">Domains on Blocklist</div>
+          <div class="pihole-metric-val" style="color:var(--accent-cyan);" id="pihole-gravity">--</div>
+          <div class="pihole-metric-sub">Active Threat Rules</div>
+        </div>
+        <div class="pihole-metric-item">
+          <div class="pihole-metric-label">Active Clients</div>
+          <div class="pihole-metric-val" style="color:var(--accent-amber);" id="pihole-clients">--</div>
+          <div class="pihole-metric-sub">LAN Devices Protected</div>
+        </div>
+      </div>
+
+      <!-- Graphs Row: 24h Activity Graph + Upstream Resolvers -->
+      <div class="pihole-graphs-row">
+        <!-- Live Activity History Graph -->
+        <div class="pihole-graph-container">
+          <div class="pihole-graph-header">
+            <span class="pihole-graph-title">DNS Activity History (Queries & Blocked Ads)</span>
+            <div class="pihole-legend">
+              <span class="legend-item"><span class="legend-color" style="background:#38bdf8;"></span>Total</span>
+              <span class="legend-item"><span class="legend-color" style="background:#34d399;"></span>Cached</span>
+              <span class="legend-item"><span class="legend-color" style="background:#f43f5e;"></span>Blocked</span>
+            </div>
+          </div>
+          <div class="pihole-svg-wrap" id="pihole-chart-wrap">
+            <!-- Dynamic SVG Chart -->
+          </div>
+        </div>
+
+        <!-- Upstream DNS Resolvers Breakdown -->
+        <div class="pihole-upstreams-container">
+          <div class="pihole-graph-header">
+            <span class="pihole-graph-title">Upstream DNS Resolvers</span>
+            <span style="font-size:0.7rem; color:var(--text-muted);" id="pihole-forwarded-count">-- Forwarded</span>
+          </div>
+          <div class="pihole-upstreams-list" id="pihole-upstreams-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Homer Tag Filter Chips -->
     <div class="filter-chips" id="filter-chips-container">
       <div class="tag-chip active" data-category="all">#All Services</div>
@@ -1256,15 +1490,17 @@
 
     async function updateTelemetry(force = false) {
       try {
-        const [resStatus, resNodes, resCluster] = await Promise.all([
+        const [resStatus, resNodes, resCluster, resPihole] = await Promise.all([
           fetch(`/api/status${force ? '?refresh=true' : ''}`),
           fetch('/api/nodes'),
-          fetch('/api/cluster')
+          fetch('/api/cluster'),
+          fetch('/api/pihole')
         ]);
 
         const statusData = await resStatus.json();
         const nodesData = await resNodes.json();
         const clusterData = await resCluster.json();
+        const piholeData = await resPihole.json();
 
         // 1. Update Services Status & Latency
         let onlineCount = 0;
@@ -1325,9 +1561,161 @@
           document.getElementById('telemetry-pods').textContent = `${runningPods} / ${totalPods}`;
         }
 
+        // 4. Update Pi-hole DNS Sinkhole Telemetry & Graphs
+        if (piholeData) {
+          renderPiholeTelemetry(piholeData);
+        }
+
       } catch (err) {
         console.error('Telemetry update failed:', err);
       }
+    }
+
+    function renderPiholeTelemetry(data) {
+      if (!data || !data.online || !data.summary || !data.summary.queries) {
+        const statusEl = document.getElementById('pihole-status-text');
+        if (statusEl) statusEl.textContent = 'Connecting...';
+        return;
+      }
+
+      const q = data.summary.queries;
+      const gravity = data.summary.gravity || {};
+      const clients = data.summary.clients || {};
+
+      const statusEl = document.getElementById('pihole-status-text');
+      if (statusEl) statusEl.textContent = 'Active & Blocking';
+
+      const totalEl = document.getElementById('pihole-total-queries');
+      if (totalEl) totalEl.textContent = q.total ? q.total.toLocaleString() : '0';
+
+      const freqEl = document.getElementById('pihole-frequency');
+      if (freqEl) freqEl.textContent = `${(q.frequency || 0).toFixed(1)} Queries / sec`;
+
+      const blockedEl = document.getElementById('pihole-blocked-queries');
+      if (blockedEl) blockedEl.textContent = q.blocked ? q.blocked.toLocaleString() : '0';
+
+      const blockedPctEl = document.getElementById('pihole-blocked-pct');
+      if (blockedPctEl) blockedPctEl.textContent = `${(q.percent_blocked || 0).toFixed(1)}% Block Rate`;
+
+      const gravityEl = document.getElementById('pihole-gravity');
+      if (gravityEl) gravityEl.textContent = (gravity.domains_being_blocked || 0).toLocaleString();
+
+      const clientsEl = document.getElementById('pihole-clients');
+      if (clientsEl) clientsEl.textContent = `${clients.active || 0} / ${clients.total || 0}`;
+
+      // Render History Graph
+      renderPiholeChart(data.history || []);
+
+      // Render Upstream DNS Resolvers
+      renderPiholeUpstreams(data.upstreams || [], data.summary.queries.forwarded || 0);
+    }
+
+    function renderPiholeChart(history) {
+      const container = document.getElementById('pihole-chart-wrap');
+      if (!container || !history || history.length === 0) return;
+
+      const w = container.clientWidth || 560;
+      const h = 130;
+      const padBottom = 22;
+      const padTop = 10;
+      const padLeft = 10;
+      const padRight = 10;
+      const chartW = w - padLeft - padRight;
+      const chartH = h - padTop - padBottom;
+
+      const maxVal = Math.max(...history.map(pt => pt.total || 0), 10);
+      const n = history.length;
+      const dx = chartW / Math.max(n - 1, 1);
+
+      let totalPoints = [];
+      let blockedPoints = [];
+      let cachedPoints = [];
+
+      history.forEach((pt, i) => {
+        const x = padLeft + i * dx;
+        const yTotal = padTop + chartH - ((pt.total || 0) / maxVal) * chartH;
+        const yCached = padTop + chartH - ((pt.cached || 0) / maxVal) * chartH;
+        const yBlocked = padTop + chartH - ((pt.blocked || 0) / maxVal) * chartH;
+
+        totalPoints.push(`${x.toFixed(1)},${yTotal.toFixed(1)}`);
+        cachedPoints.push(`${x.toFixed(1)},${yCached.toFixed(1)}`);
+        blockedPoints.push(`${x.toFixed(1)},${yBlocked.toFixed(1)}`);
+      });
+
+      const baseY = (padTop + chartH).toFixed(1);
+      const totalAreaD = `M ${totalPoints[0]} L ${totalPoints.join(' L ')} L ${padLeft + (n - 1) * dx},${baseY} L ${padLeft},${baseY} Z`;
+      const blockedAreaD = `M ${blockedPoints[0]} L ${blockedPoints.join(' L ')} L ${padLeft + (n - 1) * dx},${baseY} L ${padLeft},${baseY} Z`;
+
+      const formatTime = ts => {
+        if (!ts) return '';
+        const d = new Date(ts * 1000);
+        return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      };
+
+      const tStart = formatTime(history[0]?.timestamp);
+      const tMid = formatTime(history[Math.floor(n / 2)]?.timestamp);
+      const tEnd = formatTime(history[n - 1]?.timestamp);
+
+      container.innerHTML = `
+        <svg width="100%" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="overflow:visible;">
+          <defs>
+            <linearGradient id="piholeTotalGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.02"/>
+            </linearGradient>
+            <linearGradient id="piholeBlockedGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#f43f5e" stop-opacity="0.45"/>
+              <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.05"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Grid lines -->
+          <line x1="${padLeft}" y1="${padTop}" x2="${w - padRight}" y2="${padTop}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3"/>
+          <line x1="${padLeft}" y1="${padTop + chartH / 2}" x2="${w - padRight}" y2="${padTop + chartH / 2}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3"/>
+          <line x1="${padLeft}" y1="${baseY}" x2="${w - padRight}" y2="${baseY}" stroke="rgba(255,255,255,0.12)"/>
+
+          <!-- Areas -->
+          <path d="${totalAreaD}" fill="url(#piholeTotalGrad)"/>
+          <path d="${blockedAreaD}" fill="url(#piholeBlockedGrad)"/>
+
+          <!-- Lines -->
+          <path d="M ${totalPoints.join(' L ')}" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+          <path d="M ${cachedPoints.join(' L ')}" fill="none" stroke="#34d399" stroke-width="1.5" stroke-dasharray="4 2"/>
+          <path d="M ${blockedPoints.join(' L ')}" fill="none" stroke="#f43f5e" stroke-width="2" stroke-linecap="round"/>
+
+          <!-- Time Labels -->
+          <text x="${padLeft}" y="${h - 4}" fill="var(--text-muted)" font-size="10" font-family="'JetBrains Mono', monospace">${tStart}</text>
+          <text x="${w / 2}" y="${h - 4}" text-anchor="middle" fill="var(--text-muted)" font-size="10" font-family="'JetBrains Mono', monospace">${tMid}</text>
+          <text x="${w - padRight}" y="${h - 4}" text-anchor="end" fill="var(--text-muted)" font-size="10" font-family="'JetBrains Mono', monospace">${tEnd}</text>
+        </svg>
+      `;
+    }
+
+    function renderPiholeUpstreams(upstreams, forwardedTotal) {
+      const container = document.getElementById('pihole-upstreams-list');
+      if (!container) return;
+
+      const validUpstreams = (upstreams || []).filter(u => u.ip !== 'blocklist' && u.ip !== 'cache');
+      const totalForwarded = validUpstreams.reduce((acc, u) => acc + (u.count || 0), 0) || 1;
+      const countEl = document.getElementById('pihole-forwarded-count');
+      if (countEl) countEl.textContent = `${totalForwarded.toLocaleString()} Forwarded`;
+
+      container.innerHTML = '';
+      validUpstreams.forEach(u => {
+        const pct = Math.round(((u.count || 0) / totalForwarded) * 100);
+        const itemEl = document.createElement('div');
+        itemEl.className = 'upstream-item';
+        itemEl.innerHTML = `
+          <div class="upstream-info">
+            <span class="upstream-name">${u.name || u.ip}</span>
+            <span class="upstream-stats">${(u.count || 0).toLocaleString()} (${pct}%)</span>
+          </div>
+          <div class="upstream-progress-bg">
+            <div class="upstream-progress-bar" style="width: ${pct}%;"></div>
+          </div>
+        `;
+        container.appendChild(itemEl);
+      });
     }
 
     function updateStatusBadges() {
