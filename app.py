@@ -27,6 +27,20 @@ except Exception:
     except Exception:
         SSL_CTX = None
 
+class NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+try:
+    NO_REDIRECT_OPENER_HTTP = urllib.request.build_opener(NoRedirectHandler)
+    NO_REDIRECT_OPENER_HTTPS = urllib.request.build_opener(
+        urllib.request.HTTPSHandler(context=SSL_CTX),
+        NoRedirectHandler
+    )
+except Exception:
+    NO_REDIRECT_OPENER_HTTP = None
+    NO_REDIRECT_OPENER_HTTPS = None
+
 CACHE_STATUS = {"timestamp": 0, "data": []}
 CACHE_NODES = {"timestamp": 0, "data": []}
 CACHE_CLUSTER = {"timestamp": 0, "data": {}}
@@ -530,12 +544,20 @@ def get_npm_telemetry():
 
             try:
                 req_p = urllib.request.Request(target_url, headers={"User-Agent": "ERTECHLab-Dashboard/3.0"})
-                ctx = SSL_CTX if scheme == "https" else None
-                with urllib.request.urlopen(req_p, context=ctx, timeout=2.0) as resp:
-                    code = resp.status
-                    latency = int((time.time() - start) * 1000)
-                    reachable = True
-                    msg = f"HTTP {code}"
+                opener = NO_REDIRECT_OPENER_HTTPS if scheme == "https" else NO_REDIRECT_OPENER_HTTP
+                if opener:
+                    with opener.open(req_p, timeout=2.0) as resp:
+                        code = resp.status
+                        latency = int((time.time() - start) * 1000)
+                        reachable = True
+                        msg = f"HTTP {code}"
+                else:
+                    ctx = SSL_CTX if scheme == "https" else None
+                    with urllib.request.urlopen(req_p, context=ctx, timeout=2.0) as resp:
+                        code = resp.status
+                        latency = int((time.time() - start) * 1000)
+                        reachable = True
+                        msg = f"HTTP {code}"
             except urllib.error.HTTPError as e:
                 code = e.code
                 latency = int((time.time() - start) * 1000)

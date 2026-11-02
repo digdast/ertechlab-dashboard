@@ -1304,8 +1304,8 @@
           <div class="pihole-graph-header">
             <span class="pihole-graph-title">Proxy Hosts Response Latency & Reachability</span>
             <div class="pihole-legend">
-              <span class="legend-item"><span class="legend-color" style="background:#22c55e;"></span>Reachable (&lt;50ms)</span>
-              <span class="legend-item"><span class="legend-color" style="background:#f59e0b;"></span>Hypervisor (50-150ms)</span>
+              <span class="legend-item"><span class="legend-color" style="background:#22c55e;"></span>Healthy (&lt;350ms)</span>
+              <span class="legend-item"><span class="legend-color" style="background:#f59e0b;"></span>Warning (&gt;350ms)</span>
               <span class="legend-item"><span class="legend-color" style="background:#ef4444;"></span>Unreachable / Error</span>
             </div>
           </div>
@@ -2146,11 +2146,11 @@
         const barH = host.reachable ? Math.max(4, (lat / maxLat) * chartH) : chartH;
         const y = padTop + chartH - barH;
 
-        let barColor = '#22c55e'; // green (<50ms)
+        let barColor = '#22c55e'; // green (<350ms)
         if (!host.reachable) {
           barColor = '#ef4444'; // red (error)
-        } else if (lat > 50) {
-          barColor = '#f59e0b'; // amber (hypervisor)
+        } else if (lat > 350) {
+          barColor = '#f59e0b'; // amber (>350ms)
         }
 
         const shortName = host.domain.split('.')[0];
@@ -2200,7 +2200,7 @@
         const itemEl = document.createElement('div');
         itemEl.className = 'upstream-item';
 
-        const statusColor = h.reachable ? (h.latency_ms > 50 ? '#f59e0b' : '#22c55e') : '#ef4444';
+        const statusColor = h.reachable ? (h.latency_ms > 350 ? '#f59e0b' : '#22c55e') : '#ef4444';
         const statusText = h.reachable ? `${h.status_msg} \u2022 ${h.latency_ms}ms` : 'Error / Offline';
 
         itemEl.innerHTML = `
@@ -2216,7 +2216,7 @@
             </div>
           </div>
           <div class="upstream-progress-bg" style="height:3px;">
-            <div style="width:${h.reachable ? Math.min(Math.max((h.latency_ms / 100) * 100, 5), 100) : 100}%; background:${statusColor}; height:100%; border-radius:2px; transition:width 0.4s ease;"></div>
+            <div style="width:${h.reachable ? Math.min(Math.max((h.latency_ms / 350) * 100, 5), 100) : 100}%; background:${statusColor}; height:100%; border-radius:2px; transition:width 0.4s ease;"></div>
           </div>
         `;
         container.appendChild(itemEl);
