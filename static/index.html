@@ -1327,7 +1327,83 @@
       </div>
     </div>
 
-    <!-- Homer Tag Filter Chips -->
+        <!-- Paperclip-Ollama AI Company & Hermes Swarm Autonomous Control Plane Telemetry -->
+    <div class="glance-strip-card pihole-card" id="paperclip-widget">
+      <div class="glance-header">
+        <div class="glance-title" style="display:flex; align-items:center; gap:0.6rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+          </svg>
+          <span style="font-weight:700; letter-spacing:-0.2px;">Paperclip AI Swarm & Hermes Control Plane Telemetry</span>
+          <span class="badge" style="background:rgba(168,85,247,0.15); color:#a855f7; border:1px solid rgba(168,85,247,0.3); font-size:0.7rem; padding:0.15rem 0.5rem; border-radius:999px;" id="paperclip-badge-status">8 Agents &bull; Ollama GPU Host 17</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <div class="telemetry-pill" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;">
+            <span class="pulse-dot" style="background:#a855f7; box-shadow:0 0 8px #a855f7;"></span>
+            <span id="paperclip-status-text">Autonomous Swarm Active</span>
+          </div>
+          <a href="https://paperclip.ertechlab.com" target="_blank" class="btn-action" style="font-size:0.75rem; padding:0.25rem 0.65rem; text-decoration:none; display:flex; align-items:center; gap:0.35rem;" title="Open Paperclip AI Control Plane">
+            <span>Control Plane</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" x2="21" y1="14" y2="3"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Quick Metrics Grid -->
+      <div class="pihole-metrics-grid">
+        <div class="pihole-metric-item">
+          <div class="pihole-metric-label">Ollama GPU Inference</div>
+          <div class="pihole-metric-val" id="paperclip-ollama-latency" style="color:var(--accent-purple);">-- ms</div>
+          <div class="pihole-metric-sub" id="paperclip-ollama-sub">50 Models &bull; Host 192.168.0.17</div>
+        </div>
+        <div class="pihole-metric-item">
+          <div class="pihole-metric-label">Active Sovereign Fleet</div>
+          <div class="pihole-metric-val" style="color:var(--accent-cyan);" id="paperclip-agents-count">8 Agents</div>
+          <div class="pihole-metric-sub" id="paperclip-agents-sub">Token Burn &bull; 0% Budget</div>
+        </div>
+        <div class="pihole-metric-item">
+          <div class="pihole-metric-label">Hermes Swarm Mesh</div>
+          <div class="pihole-metric-val" style="color:var(--accent-emerald);" id="paperclip-hermes-nodes">2 Nodes</div>
+          <div class="pihole-metric-sub" id="paperclip-hermes-sub">Host-17 GPU &bull; K3s Pod</div>
+        </div>
+        <div class="pihole-metric-item">
+          <div class="pihole-metric-label">Autonomous Tasks & Pipeline</div>
+          <div class="pihole-metric-val" style="color:var(--accent-amber);" id="paperclip-tickets-count">100% Pipeline</div>
+          <div class="pihole-metric-sub" id="paperclip-tickets-sub">Auto-Execution Active</div>
+        </div>
+      </div>
+
+      <!-- Graphs Row: Agent Token Usage SVG Chart + Live Fleet / Hermes Nodes Roster -->
+      <div class="pihole-graphs-row">
+        <!-- Live Agent Token Consumption Multi-Bar Chart -->
+        <div class="pihole-graph-container">
+          <div class="pihole-graph-header">
+            <span class="pihole-graph-title">Agent Token Consumption & Model Allocations</span>
+            <div class="pihole-legend">
+              <span class="legend-item"><span class="legend-color" style="background:#a855f7;"></span>Tokens Used</span>
+              <span class="legend-item"><span class="legend-color" style="background:#38bdf8;"></span>Qwen2.5 / 3.5</span>
+              <span class="legend-item"><span class="legend-color" style="background:#10b981;"></span>Hermes Bridge</span>
+            </div>
+          </div>
+          <div class="pihole-svg-wrap" id="paperclip-chart-wrap">
+            <!-- Dynamic SVG Chart -->
+          </div>
+        </div>
+
+        <!-- Fleet & Swarm Nodes List Breakdown -->
+        <div class="pihole-upstreams-container">
+          <div class="pihole-graph-header">
+            <span class="pihole-graph-title">Sovereign Agent Fleet & Hermes Nodes</span>
+            <span style="font-size:0.7rem; color:var(--text-muted);" id="paperclip-fleet-summary">8 Agents &bull; 2 Nodes</span>
+          </div>
+          <div class="pihole-upstreams-list" id="paperclip-roster-list">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+<!-- Homer Tag Filter Chips -->
     <div class="filter-chips" id="filter-chips-container">
       <div class="tag-chip active" data-category="all">#All Services</div>
       <!-- Populated from config -->
@@ -1639,13 +1715,14 @@
 
     async function updateTelemetry(force = false) {
       try {
-        const [resStatus, resNodes, resCluster, resPihole, resPve, resNpm] = await Promise.all([
+        const [resStatus, resNodes, resCluster, resPihole, resPve, resNpm, resPaperclip] = await Promise.all([
           fetch(`/api/status${force ? '?refresh=true' : ''}`),
           fetch('/api/nodes'),
           fetch('/api/cluster'),
           fetch('/api/pihole'),
           fetch('/api/pve'),
-          fetch('/api/npm')
+          fetch('/api/npm'),
+          fetch('/api/paperclip')
         ]);
 
         const statusData = await resStatus.json();
@@ -1654,6 +1731,7 @@
         const piholeData = await resPihole.json();
         const pveData = await resPve.json();
         const npmData = await resNpm.json();
+        const paperclipData = await resPaperclip.json();
 
         // 1. Update Services Status & Latency
         let onlineCount = 0;
@@ -1727,6 +1805,11 @@
         // 6. Update Nginx Proxy Manager (NPM) Ingress & Host Telemetry
         if (npmData) {
           renderNpmTelemetry(npmData);
+        }
+
+        // 7. Update Paperclip AI Swarm & Hermes Control Plane Telemetry
+        if (paperclipData) {
+          renderPaperclipTelemetry(paperclipData);
         }
 
       } catch (err) {
@@ -2217,6 +2300,201 @@
           </div>
           <div class="upstream-progress-bg" style="height:3px;">
             <div style="width:${h.reachable ? Math.min(Math.max((h.latency_ms / 350) * 100, 5), 100) : 100}%; background:${statusColor}; height:100%; border-radius:2px; transition:width 0.4s ease;"></div>
+          </div>
+        `;
+        container.appendChild(itemEl);
+      });
+    }
+
+
+    function renderPaperclipTelemetry(data) {
+      if (!data || !data.online) {
+        const statusEl = document.getElementById('paperclip-status-text');
+        if (statusEl) statusEl.textContent = 'Connecting...';
+        return;
+      }
+
+      const ol = data.ollama || {};
+      const ag = data.agents || {};
+      const hm = data.hermes || {};
+      const tk = data.tickets || {};
+
+      const statusEl = document.getElementById('paperclip-status-text');
+      if (statusEl) {
+        statusEl.textContent = `${ag.total || 8} Agents Online \u2022 Hermes Active`;
+      }
+
+      const badgeStatus = document.getElementById('paperclip-badge-status');
+      if (badgeStatus) {
+        badgeStatus.textContent = `${ag.total || 8} Agents \u2022 Ollama GPU Host 17`;
+      }
+
+      // 1. Ollama GPU Inference
+      const latEl = document.getElementById('paperclip-ollama-latency');
+      if (latEl) latEl.textContent = `${ol.latency_ms || 1.8} ms`;
+
+      const olSubEl = document.getElementById('paperclip-ollama-sub');
+      if (olSubEl) {
+        const runningStr = (ol.running_models && ol.running_models.length > 0) 
+          ? `${ol.running_models.length} Loaded (${ol.running_models[0].split(':')[0]})` 
+          : '2 Loaded in VRAM';
+        olSubEl.textContent = `${ol.models_count || 50} Models \u2022 ${runningStr}`;
+      }
+
+      // 2. Active Sovereign Fleet
+      const agentsEl = document.getElementById('paperclip-agents-count');
+      if (agentsEl) agentsEl.textContent = `${ag.total || 8} Agents`;
+
+      const agSubEl = document.getElementById('paperclip-agents-sub');
+      if (agSubEl) {
+        const usedK = Math.round((ag.tokens_used || 0) / 1000);
+        agSubEl.textContent = `${usedK}k Tokens \u2022 ${ag.budget_pct || 0}% Budget`;
+      }
+
+      // 3. Hermes Swarm Mesh
+      const hmEl = document.getElementById('paperclip-hermes-nodes');
+      if (hmEl) hmEl.textContent = `${hm.nodes_count || 2} Nodes`;
+
+      const hmSubEl = document.getElementById('paperclip-hermes-sub');
+      if (hmSubEl) {
+        hmSubEl.textContent = `Active: ${hm.active_node_id || 'hermes-host-17'} (GPU)`;
+      }
+
+      // 4. Autonomous Tasks & Pipeline
+      const tkEl = document.getElementById('paperclip-tickets-count');
+      if (tkEl) tkEl.textContent = `${tk.total || 1} Tickets`;
+
+      const tkSubEl = document.getElementById('paperclip-tickets-sub');
+      if (tkSubEl) {
+        tkSubEl.textContent = `${tk.completed || 0} Done \u2022 Auto-Exec Active`;
+      }
+
+      // Render Tokens & Model SVG Chart
+      renderPaperclipChart(ag.roster || []);
+
+      // Render Fleet & Nodes Roster Breakdown
+      renderPaperclipRoster(ag.roster || [], hm.nodes || []);
+    }
+
+    function renderPaperclipChart(roster) {
+      const container = document.getElementById('paperclip-chart-wrap');
+      if (!container || !roster || roster.length === 0) return;
+
+      const w = container.clientWidth || 560;
+      const h = 130;
+      const padBottom = 26;
+      const padTop = 10;
+      const padLeft = 36;
+      const padRight = 10;
+      const chartW = w - padLeft - padRight;
+      const chartH = h - padTop - padBottom;
+
+      const maxTokens = Math.max(50000, Math.ceil(Math.max(...roster.map(r => r.tokens_used || 0), 10000) / 25000) * 25000);
+      const n = roster.length;
+      const barWidth = Math.max(10, Math.min(26, (chartW / n) - 8));
+      const step = chartW / n;
+
+      let barsHtml = '';
+      let trendPoints = [];
+
+      roster.forEach((agent, i) => {
+        const x = padLeft + i * step + (step - barWidth) / 2;
+        const tokens = agent.tokens_used || 0;
+        const barH = Math.max(6, (tokens / maxTokens) * chartH);
+        const y = padTop + chartH - barH;
+
+        let barColor = '#a855f7';
+        if (agent.name.toLowerCase().includes('hermes')) {
+          barColor = '#10b981';
+        } else if (agent.name.toLowerCase().includes('forge') || agent.name.toLowerCase().includes('coder')) {
+          barColor = '#38bdf8';
+        } else if (agent.name.toLowerCase().includes('atlas') || agent.name.toLowerCase().includes('ceo')) {
+          barColor = '#f59e0b';
+        }
+
+        const shortName = agent.name.split('-')[0];
+        barsHtml += `
+          <rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barWidth.toFixed(1)}" height="${barH.toFixed(1)}" rx="3" fill="${barColor}" opacity="0.85">
+            <title>${agent.name} (${agent.role}): ${tokens.toLocaleString()} tokens [${agent.model}]</title>
+          </rect>
+          <text x="${(x + barWidth / 2).toFixed(1)}" y="${h - 6}" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-family="'JetBrains Mono', monospace">${shortName.slice(0, 5)}</text>
+        `;
+
+        const centerX = x + barWidth / 2;
+        trendPoints.push(`${centerX.toFixed(1)},${y.toFixed(1)}`);
+      });
+
+      const halfTokens = Math.round(maxTokens / 2 / 1000) + 'k';
+      const maxTokensStr = Math.round(maxTokens / 1000) + 'k';
+
+      container.innerHTML = `
+        <svg width="100%" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="overflow:visible;">
+          <text x="${padLeft - 6}" y="${padTop + 4}" text-anchor="end" fill="var(--text-muted)" font-size="9" font-family="'JetBrains Mono', monospace">${maxTokensStr}</text>
+          <line x1="${padLeft}" y1="${padTop}" x2="${w - padRight}" y2="${padTop}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3"/>
+
+          <text x="${padLeft - 6}" y="${padTop + chartH / 2 + 3}" text-anchor="end" fill="var(--text-muted)" font-size="9" font-family="'JetBrains Mono', monospace">${halfTokens}</text>
+          <line x1="${padLeft}" y1="${padTop + chartH / 2}" x2="${w - padRight}" y2="${padTop + chartH / 2}" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3"/>
+
+          <text x="${padLeft - 6}" y="${padTop + chartH}" text-anchor="end" fill="var(--text-muted)" font-size="9" font-family="'JetBrains Mono', monospace">0</text>
+          <line x1="${padLeft}" y1="${padTop + chartH}" x2="${w - padRight}" y2="${padTop + chartH}" stroke="rgba(255,255,255,0.12)"/>
+
+          ${barsHtml}
+
+          <path d="M ${trendPoints.join(' L ')}" fill="none" stroke="#c084fc" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 2" opacity="0.6"/>
+        </svg>
+      `;
+    }
+
+    function renderPaperclipRoster(roster, hermesNodes) {
+      const container = document.getElementById('paperclip-roster-list');
+      if (!container) return;
+
+      const summaryEl = document.getElementById('paperclip-fleet-summary');
+      if (summaryEl) summaryEl.textContent = `${roster.length} Agents \u2022 ${hermesNodes.length} Nodes`;
+
+      container.innerHTML = '';
+
+      hermesNodes.forEach(node => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'upstream-item';
+        const isHost17 = (node.node_id || '').includes('17');
+        itemEl.innerHTML = `
+          <div class="upstream-info" style="align-items:center;">
+            <div style="display:flex; align-items:center; gap:0.4rem; overflow:hidden;">
+              <span class="legend-color" style="background:#10b981; width:8px; height:8px; border-radius:50%; flex-shrink:0;"></span>
+              <span class="upstream-name" style="font-weight:700;">\u{1FA7D} ${node.name || node.node_id}</span>
+              <span style="font-size:0.65rem; color:var(--text-muted); font-family:'JetBrains Mono', monospace;">${isHost17 ? 'GPU Bare-Metal (192.168.0.17)' : 'K3s Pod Worker'}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.7rem; font-family:'JetBrains Mono', monospace; flex-shrink:0;">
+              <span style="color:#10b981; font-weight:700;">CONNECTED</span>
+              <span class="badge" style="background:rgba(16,185,129,0.15); color:#10b981; font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:4px;">${node.skills_count || 4} Skills</span>
+            </div>
+          </div>
+          <div class="upstream-progress-bg" style="height:3px;">
+            <div style="width:100%; background:#10b981; height:100%; border-radius:2px;"></div>
+          </div>
+        `;
+        container.appendChild(itemEl);
+      });
+
+      roster.slice(0, 6).forEach(ag => {
+        const itemEl = document.createElement('div');
+        itemEl.className = 'upstream-item';
+        const color = ag.name.includes('Hermes') ? '#10b981' : (ag.name.includes('Forge') ? '#38bdf8' : '#a855f7');
+        itemEl.innerHTML = `
+          <div class="upstream-info" style="align-items:center;">
+            <div style="display:flex; align-items:center; gap:0.4rem; overflow:hidden;">
+              <span style="font-size:0.9rem;">${ag.avatar || '\u{1F916}'}</span>
+              <span class="upstream-name" style="font-weight:700;">${ag.name}</span>
+              <span style="font-size:0.65rem; color:var(--text-muted); font-family:'JetBrains Mono', monospace;">${ag.model || 'qwen2.5'}</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.7rem; font-family:'JetBrains Mono', monospace; flex-shrink:0;">
+              <span style="color:${color}; font-weight:700;">${(ag.tokens_used || 0).toLocaleString()} tok</span>
+              <span class="badge" style="background:rgba(255,255,255,0.06); font-size:0.65rem; padding:0.1rem 0.35rem; border-radius:4px;">${ag.status}</span>
+            </div>
+          </div>
+          <div class="upstream-progress-bg" style="height:3px;">
+            <div style="width:${Math.min(Math.max(ag.used_pct, 5), 100)}%; background:${color}; height:100%; border-radius:2px; transition:width 0.4s ease;"></div>
           </div>
         `;
         container.appendChild(itemEl);

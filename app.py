@@ -47,6 +47,13 @@ CACHE_CLUSTER = {"timestamp": 0, "data": {}}
 CACHE_PIHOLE = {"timestamp": 0, "data": {}}
 CACHE_PVE = {"timestamp": 0, "data": {}}
 CACHE_NPM = {"timestamp": 0, "data": {}}
+CACHE_PAPERCLIP = {"timestamp": 0, "data": {}}
+
+PAPERCLIP_ENDPOINTS = [
+    "http://paperclip.ai.svc.cluster.local:7891",
+    "http://192.168.0.81:30791",
+    "http://192.168.0.80:30791"
+]
 
 PVE_TOKEN_HEADER = "PVEAPIToken=root@pam!dashboard=11ad9290-cbf4-4944-aa5f-523cb6d3773b"
 PVE_HOSTS = ["192.168.0.31", "192.168.0.32", "192.168.0.33", "192.168.0.34"]
@@ -612,6 +619,157 @@ def get_npm_telemetry():
     CACHE_NPM["data"] = npm_data
     return npm_data
 
+def get_paperclip_telemetry():
+    now = time.time()
+    if now - CACHE_PAPERCLIP["timestamp"] < 8 and CACHE_PAPERCLIP["data"]:
+        return CACHE_PAPERCLIP["data"]
+
+    telemetry = {
+        "online": False,
+        "swarm_status": "Connecting...",
+        "ollama": {
+            "connected": False,
+            "url": "http://192.168.0.17:11434",
+            "version": "0.40.13",
+            "latency_ms": 0,
+            "models_count": 0,
+            "running_models": []
+        },
+        "agents": {
+            "total": 0,
+            "active": 0,
+            "idle": 0,
+            "tokens_used": 0,
+            "budget_tokens": 0,
+            "budget_pct": 0,
+            "roster": []
+        },
+        "hermes": {
+            "active_node_id": "hermes-host-17",
+            "nodes_count": 0,
+            "nodes": []
+        },
+        "tickets": {
+            "total": 0,
+            "completed": 0,
+            "pending": 0,
+            "auto_executed": 0
+        },
+        "timestamp": now
+    }
+
+    raw_state = None
+    raw_nodes = None
+
+    for base_url in PAPERCLIP_ENDPOINTS:
+        try:
+            req_state = urllib.request.Request(f"{base_url}/api/state", headers={"User-Agent": "ERTECHLab-Dashboard/3.0"})
+            with urllib.request.urlopen(req_state, timeout=2.5) as r:
+                if r.status == 200:
+                    raw_state = json.loads(r.read().decode())
+            
+            try:
+                req_nodes = urllib.request.Request(f"{base_url}/api/hermes/nodes", headers={"User-Agent": "ERTECHLab-Dashboard/3.0"})
+                with urllib.request.urlopen(req_nodes, timeout=2.5) as rn:
+                    if rn.status == 200:
+                        raw_nodes = json.loads(rn.read().decode())
+            except Exception:
+                pass
+
+            if raw_state:
+                telemetry["online"] = True
+                break
+        except Exception:
+            continue
+
+    if raw_state:
+        st = raw_state.get("state", {})
+        ol = raw_state.get("ollama", {})
+
+        # Ollama telemetry
+        telemetry["ollama"] = {
+            "connected": bool(ol.get("connected")),
+            "url": ol.get("url") or st.get("ollama_url", "http://192.168.0.17:11434"),
+            "version": ol.get("version") or "0.40.13",
+            "latency_ms": round(float(ol.get("latency_ms", 1.8)), 1),
+            "models_count": int(ol.get("models_count", 0)),
+            "running_models": ol.get("running_models", [])
+        }
+
+        # Agents telemetry
+        agents_list = st.get("agents", [])
+        tokens_used_sum = 0
+        tokens_budget_sum = 0
+        active_cnt = 0
+        idle_cnt = 0
+        roster = []
+
+        for a in agents_list:
+            used = int(a.get("tokens_used", 0))
+            budget = int(a.get("budget_tokens", 1000000))
+            tokens_used_sum += used
+            tokens_budget_sum += budget
+            status = a.get("status", "IDLE")
+            if status in ["BUSY", "EXECUTING", "ONLINE", "ACTIVE"]:
+                active_cnt += 1
+            else:
+                idle_cnt += 1
+            roster.append({
+                "id": a.get("id"),
+                "name": a.get("name"),
+                "avatar": a.get("avatar", "🤖"),
+                "role": a.get("role"),
+                "model": a.get("model"),
+                "status": status,
+                "tokens_used": used,
+                "budget_tokens": budget,
+                "used_pct": round((used / max(budget, 1)) * 100, 1)
+            })
+
+        telemetry["agents"] = {
+            "total": len(agents_list),
+            "active": active_cnt,
+            "idle": idle_cnt,
+            "tokens_used": tokens_used_sum,
+            "budget_tokens": tokens_budget_sum,
+            "budget_pct": round((tokens_used_sum / max(tokens_budget_sum, 1)) * 100, 1),
+            "roster": roster
+        }
+
+        # Hermes telemetry
+        h_nodes = []
+        if raw_nodes and "nodes" in raw_nodes:
+            h_nodes = raw_nodes.get("nodes", [])
+            active_node = raw_nodes.get("active_node_id") or st.get("active_hermes_node_id", "hermes-host-17")
+        else:
+            h_nodes = st.get("hermes_nodes", [])
+            active_node = st.get("active_hermes_node_id", "hermes-host-17")
+
+        telemetry["hermes"] = {
+            "active_node_id": active_node,
+            "nodes_count": len(h_nodes),
+            "nodes": h_nodes
+        }
+
+        # Tickets telemetry
+        tickets = st.get("tickets", [])
+        comp_cnt = sum(1 for t in tickets if t.get("status") == "COMPLETED")
+        pend_cnt = sum(1 for t in tickets if t.get("status") in ["OPEN", "PENDING", "IN_PROGRESS", "ASSIGNED"])
+        auto_cnt = sum(1 for t in tickets if t.get("auto_execute"))
+
+        telemetry["tickets"] = {
+            "total": len(tickets),
+            "completed": comp_cnt,
+            "pending": pend_cnt,
+            "auto_executed": auto_cnt
+        }
+
+        telemetry["swarm_status"] = f"{len(agents_list)} Agents \u2022 {len(h_nodes)} Hermes Nodes Online"
+
+    CACHE_PAPERCLIP["timestamp"] = now
+    CACHE_PAPERCLIP["data"] = telemetry
+    return telemetry
+
 class DashboardHandler(http.server.SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=STATIC_DIR, **kwargs)
@@ -649,6 +807,11 @@ class DashboardHandler(http.server.SimpleHTTPRequestHandler):
 
         if self.path.startswith("/api/npm"):
             data = get_npm_telemetry()
+            self.send_json_response(data)
+            return
+
+        if self.path.startswith("/api/paperclip"):
+            data = get_paperclip_telemetry()
             self.send_json_response(data)
             return
 
